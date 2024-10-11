@@ -1,4 +1,4 @@
-PORT := 1624
+PORT ?=1624
 
 i:
 	poetry install
@@ -10,7 +10,7 @@ b:
 	poetry build
 
 f:
-	poetry run flask run --app page_analyzer run --port $(PORT)--debug
+	poetry run flask run --app page_analyzer run --port $(PORT) --debug
 
 g:
 	poetry run gunicorn --bind=localhost:$(PORT) page_analyzer:app
@@ -20,3 +20,6 @@ t:
 
 tv:
 	poetry run pytest -v
+
+l:
+	poetry run flake8 page_analyzer/app.py
