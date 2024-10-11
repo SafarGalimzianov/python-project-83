@@ -4,10 +4,15 @@ version = "0.1.0"
 description = "Page Analyzer is a website that analyzes specified pages for SEO suitability"
 authors = ["Safar Galimzyanov <safargalimzyanov@protonmail.com>"]
 readme = "README.md"
-packages = [{include = "hexlet_code"}]
+packages = [{include = "page_analyzer"}]
 
 [tool.poetry.dependencies]
 python = "^3.10"
+flask = "^3.0.3"
+gunicorn = "^23.0.0"
+python-dotenv = "^1.0.1"
+psycopg2 = "^2.9.9"
+pytest = "^8.3.3"
 
 
 [build-system]
