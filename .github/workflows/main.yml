@@ -1,0 +1,50 @@
+name: Python CI
+
+on:
+    push:
+        branches:
+            - main
+
+jobs:
+    build:
+        runs-on: ubuntu-latest
+
+        steps:
+        - name: Checkout repository
+          uses: actions/checkout@v4
+
+        - name: Set up Python
+          uses: actions/setup-python@v4
+          with:
+            python-version: '3.12'
+
+        - name: Cache Poetry dependencies
+          uses: actions/cache@v3
+          with:
+            path: ~/.cache/pypoetry
+            key: ${{ runner.os }}-poetry-${{ hashFiles('**/poetry.lock') }}
+            restore-keys: |
+              ${{ runner.os }}-poetry-
+
+        - name: Run tests
+          run: |
+            poetry run pytest --cov=page_analyzer --cov-report=xml
+
+        - name: Upload coverage to CodeClimate
+          env:
+            CC_TEST_REPORTER_ID: ${{ secrets.CC_TEST_REPORTER_ID }}
+          run: |
+            curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
+            echo "8c7899a7c69f0bfa91ffa739984de0efc6f15176db68897a05704078a1581649 ./cc-test-reporter" | sha256sum -c -
+            chmod +x ./cc-test-reporter
+            ./cc-test-reporter before-build
+            ./cc-test-reporter format-coverage -t coverage.py -o coverage/codeclimate.json
+            ./cc-test-reporter upload-coverage
+
+        - name: Run linter
+          run: |
+            poetry run flake8 page_analyzer/app.py
+
+        - name: CodeClimate maintainability check
+          run: |
+            ./cc-test-reporter after-build --exit-code $?
