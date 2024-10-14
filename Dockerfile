@@ -29,5 +29,5 @@ ENV FLASK_RUN_HOST=0.0.0.0
 # No need to expose the port the app runs on
 # Render handles the port assignment dynamically
 
-# Run the application
-CMD ["poetry", "run", "gunicorn", "--bind=0.0.0.0:${PORT}", "page_analyzer:app"]
+# Run the application inside shell to use the environment variable $PORT provided by Render
+CMD ["sh", "-c", "poetry run gunicorn --bind=0.0.0.0:$PORT page_analyzer:app"]
