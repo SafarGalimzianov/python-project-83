@@ -2,7 +2,8 @@
 FROM python:3.12-slim
 
 # Update the package list and install make gcc and libpq-dev (for postgresql) and remove the package list (cached files created by apt-get update)
-RUN apt update && apt install -yq make build-essential gcc libpq-dev && apt clean && rm -rf /var/lib/apt/lists/*
+# apt-get is better than apt because it is designed for scripts and automation
+RUN apt-get update && apt-get install -yq make build-essential gcc libpq-dev && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Create a non-root user and group
 RUN groupadd -r appuser && useradd --no-log-init -r -g appuser appuser
