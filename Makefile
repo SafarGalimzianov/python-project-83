@@ -13,7 +13,7 @@ f:
 	poetry run flask --app page_analyzer.app run --port $(PORT) --debug
 
 g:
-	poetry run gunicorn --bind=localhost:$(PORT) page_analyzer:app
+	poetry run gunicorn --bind=localhost:$(PORT) page_analyzer.app:app
 
 t:
 	poetry run pytest
