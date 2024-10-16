@@ -1,0 +1,23 @@
+{% extends "main/layout.html" %}
+
+{% block title %}URl в базе{% endblock %}
+
+{% block header %}Список{% endblock %}
+
+
+{% block messages %}
+{% endblock %}
+
+{% block main %}
+<tbody>
+    <tr>
+        {% for url in urls %}
+        <td><a href="{{ url_for('get_url', url_id=url['id']) }}">{{ url }}</a></td><br>
+        {% endfor %}
+    </tr>
+</tbody>
+{% endblock %}
+
+{% block footer %}
+    {{ super() }}
+{% endblock %}

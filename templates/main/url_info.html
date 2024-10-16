@@ -1,0 +1,26 @@
+{% extends "main/layout.html" %}
+
+{% block title %}Main page{% endblock %}
+
+{% block header %}You are on the main page{% endblock %}
+
+{% block messages %}
+{% endblock %}
+
+{% block main %}
+{{ url_id }}
+<br>
+{{ url_info }}
+<br>
+{% for check in checks %}
+    {{ check }}<br>
+{% endfor %}
+
+<form action="{{ url_for('check_url', url_id=url_id) }}" method="post">
+    <input type="submit" value="Check URL">
+</form>
+{% endblock %}
+
+{% block footer %}
+    {{ super() }}
+{% endblock %}

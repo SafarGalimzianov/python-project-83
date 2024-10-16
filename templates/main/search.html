@@ -1,12 +1,23 @@
-{% extends "layout.html" %}
+{% extends "main/layout.html" %}
 
-{% block title %}Main page{% endblock %}
+{% block title %}Главная страница{% endblock %}
+{% block header %}
+Вы на главной странице
+<a href="{{ url_for('search') }}">Главная</a>
 
-{% block header %}You are on the main page{% endblock %}
-
-{% block main %}
+<a href="{{ url_for('get_urls') }}">Информация о URL</a>
+{% endblock %}
+{% block messages %}
 {% endblock %}
 
+{% block main %}
+<form action="{{ url_for('search') }}" method="post">
+    <input type="text" name="url" value="{{ search|e }}" placeholder="Search" required>
+    <input type="submit" value="Search">
+</form>
+{% endblock %}
+
+
 {% block footer %}
-    {{ block.super }}
+    {{ super() }}
 {% endblock %}

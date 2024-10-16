@@ -5,3 +5,4 @@ __pycache__
 dist/
 cc-test-reporter
 .vscode/
+.flake8

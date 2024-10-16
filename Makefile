@@ -10,7 +10,7 @@ b:
 	poetry build
 
 f:
-	poetry run flask run --app page_analyzer run --port $(PORT) --debug
+	poetry run flask --app page_analyzer.app run --port $(PORT) --debug
 
 g:
 	poetry run gunicorn --bind=localhost:$(PORT) page_analyzer:app
@@ -22,4 +22,4 @@ tv:
 	poetry run pytest -v
 
 l:
-	poetry run flake8 page_analyzer/app.py
+	poetry run flake8 page_analyzer/app.py page_analyzer/app_repository.py
