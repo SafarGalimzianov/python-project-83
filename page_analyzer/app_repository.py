@@ -1,4 +1,4 @@
-from psycopg2.extras import RealDictCursor
+from psycopg.rows import dict_row
 
 
 class AppRepository:
@@ -80,7 +80,7 @@ class AppRepository:
 
     # Метод получения всех сайтов с их последними проверками
     def get_urls(self):
-        with self.conn.cursor(cursor_factory=RealDictCursor) as cur:
+        with self.conn.cursor(row_factory=dict_row) as cur:
             cur.execute(f'''
                 SELECT
                     ul.id AS id,
@@ -103,7 +103,7 @@ class AppRepository:
 
     # Метод получения информации о сайте с его последней проверкой
     def get_url_info(self, url_id):
-        with self.conn.cursor(cursor_factory=RealDictCursor) as cur:
+        with self.conn.cursor(row_factory=dict_row) as cur:
             cur.execute(f'''
                     SELECT url, creation_date
                     FROM {self.urls_table}
@@ -115,7 +115,7 @@ class AppRepository:
 
     # Метод поиска проверок сайта по его имени
     def get_url_checks(self, url_id):
-        with self.conn.cursor(cursor_factory=RealDictCursor) as cur:
+        with self.conn.cursor(row_factory=dict_row) as cur:
             cur.execute(f'''
                 SELECT
                     id,
@@ -134,7 +134,7 @@ class AppRepository:
 
     # Метод получения адреса сайта
     def get_url_address(self, url_id):
-        with self.conn.cursor(cursor_factory=RealDictCursor) as cur:
+        with self.conn.cursor(row_factory=dict_row) as cur:
             cur.execute(f'''
                 SELECT url
                 FROM {self.urls_table}
@@ -146,7 +146,7 @@ class AppRepository:
 
     # Метод проверки сайта
     def check_url(self, data):
-        with self.conn.cursor(cursor_factory=RealDictCursor) as cur:
+        with self.conn.cursor(row_factory=dict_row) as cur:
             # Получение id URL
             cur.execute(f'''
                 SELECT id
@@ -190,7 +190,7 @@ class AppRepository:
 
     # Методы добавления нового сайта
     def add_url(self, url, creation_date):
-        with self.conn.cursor(cursor_factory=RealDictCursor) as cur:
+        with self.conn.cursor(row_factory=dict_row) as cur:
             # Check if the URL already exists
             cur.execute(f'''
                 SELECT id

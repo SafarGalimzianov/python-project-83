@@ -1,7 +1,7 @@
 # Добавление библиотеки os для получения переменных окружения ('SECRET_KEY', 'DATABASE_URL')
 import os
-# Добавление библиотеки psycopg2 для работы с базой данных (app_repository.py)
-import psycopg2
+# Добавление библиотеки psycopg для работы с базой данных (app_repository.py)
+import psycopg
 # Добавление библиотеки requests для отправки HTTP-запросов (make_request())
 import requests
 # Добавление библиотеки BeautifulSoup для парсинга HTML-кода (make_request())
@@ -53,7 +53,7 @@ def set_security_headers(response):
 app.config['SECRET_KEY'] = os.getenv('SECRET_KEY')  # Получение ключа сессии
 app.config['DATABASE_URL'] = os.getenv('DATABASE_URL')  # Получение URL базы данных
 
-conn = psycopg2.connect(app.config['DATABASE_URL'])  # Соединение с базой данных
+conn = psycopg.connect(app.config['DATABASE_URL'])  # Соединение с базой данных
 
 repo = AppRepository(conn)  # Инстанцирование класса AppRepository
 
@@ -247,6 +247,7 @@ def check_url(url_id):  # Проверка URL, поэтому check_url
 @app.get('/urls')  # Для выводы списка всех добавленных URL используется отдельная страница
 def get_urls():  # Получение списка URL, поэтому get_urls
     urls = repo.get_urls()  # Получение списка URL из базы данных
+    return render_template('temp.html', data=urls)  # Отображение списка URL
     return render_template('main/urls.html', urls=urls)  # Отображение списка URL
 
 

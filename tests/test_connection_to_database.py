@@ -1,14 +1,14 @@
 import os
 import pytest
-import psycopg2
-from psycopg2.extras import RealDictCursor
+import psycopg
+from psycopg.rows import DictRow
 from page_analyzer.app_repository import AppRepository
 from datetime import datetime
 
 
 @pytest.fixture(scope="module")
 def db_conn():
-    conn = psycopg2.connect(os.getenv('DATABASE_URL'))
+    conn = psycopg.connect(os.getenv('DATABASE_URL'))
     yield conn
     conn.close()
 

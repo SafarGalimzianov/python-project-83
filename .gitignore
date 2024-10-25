@@ -6,3 +6,5 @@ dist/
 cc-test-reporter
 .vscode/
 .flake8
+.coverage
+temp.*
