@@ -10,15 +10,15 @@ RUN mkdir -p /home/appuser && chown -R appuser:appuser /home/appuser
 # Set the working directory in the container
 WORKDIR /app
 
-# Switch to the non-root user
-USER appuser
-
 # Add the local bin directory to PATH
 ENV PATH="$PATH:/home/appuser/.local/bin"
 
 # Update the package list and install make gcc and libpq-dev (for postgresql) and remove the package list (cached files created by apt-get update)
 # apt-get is better than apt because it is designed for scripts and automation
 RUN apt-get update && apt-get install -yq make build-essential gcc libpq-dev && apt-get clean && rm -rf /var/lib/apt/lists/*
+
+# Switch to the non-root user
+USER appuser
 
 # Install Poetry without root permissions
 RUN pip install poetry
