@@ -1,6 +1,9 @@
 # Use the official Python image from the Docker Hub
 FROM python:3.12-slim
 
+# Add the local bin directory to PATH
+ENV PATH="$PATH:/home/appuser/.local/bin"
+
 # Update the package list and install make gcc and libpq-dev (for postgresql) and remove the package list (cached files created by apt-get update)
 # apt-get is better than apt because it is designed for scripts and automation
 RUN apt-get update && apt-get install -yq make build-essential gcc libpq-dev && apt-get clean && rm -rf /var/lib/apt/lists/*
@@ -19,9 +22,6 @@ USER appuser
 
 # Install Poetry without root permissions
 RUN pip install poetry
-
-# Add the local bin directory to PATH
-ENV PATH="$PATH:/home/appuser/.local/bin"
 
 # Copy the pyproject.toml and poetry.lock files from the current directory to the container ./
 COPY pyproject.toml poetry.lock ./

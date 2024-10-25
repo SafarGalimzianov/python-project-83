@@ -250,12 +250,7 @@ def get_urls():  # Получение списка URL, поэтому get_urls
     return render_template('temp.html', data=urls)  # Отображение списка URL
     return render_template('main/urls.html', urls=urls)  # Отображение списка URL
 
-
-@app.get('/content')
-def get_content():
-    return render_template('temp.html', data=repo.get_everything())
-
-
+# Отображение ошибки 404
 @app.errorhandler(404)
 def error_404(e):
     return render_template('errors/404.html')
