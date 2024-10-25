@@ -1,13 +1,6 @@
 # Use the official Python image from the Docker Hub
 FROM python:3.12-slim
 
-# Add the local bin directory to PATH
-ENV PATH="$PATH:/home/appuser/.local/bin"
-
-# Update the package list and install make gcc and libpq-dev (for postgresql) and remove the package list (cached files created by apt-get update)
-# apt-get is better than apt because it is designed for scripts and automation
-RUN apt-get update && apt-get install -yq make build-essential gcc libpq-dev && apt-get clean && rm -rf /var/lib/apt/lists/*
-
 # Create a non-root user and group
 RUN groupadd -r appuser && useradd --no-log-init -r -g appuser appuser
 
@@ -19,6 +12,13 @@ WORKDIR /app
 
 # Switch to the non-root user
 USER appuser
+
+# Add the local bin directory to PATH
+ENV PATH="$PATH:/home/appuser/.local/bin"
+
+# Update the package list and install make gcc and libpq-dev (for postgresql) and remove the package list (cached files created by apt-get update)
+# apt-get is better than apt because it is designed for scripts and automation
+RUN apt-get update && apt-get install -yq make build-essential gcc libpq-dev && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Install Poetry without root permissions
 RUN pip install poetry
