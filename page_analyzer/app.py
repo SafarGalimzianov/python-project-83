@@ -84,11 +84,16 @@ def format_date(date: str) -> str:
 
 # Запрос к странице по URL вида https://www.example.com
 # Получение URL в виде строки и возвращение данных ответа в виде словаря
-def make_request(url: str) -> dict:
-    fixed_url = validate_and_fix_url(url)  # Проверка URL на доступность и исправление ошибки в URL при недоступности
-    if not fixed_url:
-        return {'url': False}  # Возврат False при недоступности URL
-    response = requests.get(fixed_url)  # Получение ответа
+def make_request(url: str, fix=True) -> dict:
+    if fix:
+        fixed_url = validate_and_fix_url(url)  # Проверка URL на доступность и исправление ошибки в URL при недоступности
+        if not fixed_url:
+            return {'url': False}  # Возврат False при недоступности URL
+        url = fixed_url
+    try:
+        response = requests.get(url)  # Получение ответа
+    except requests.ConnectionError: # Если не удается получить ответ
+        return {'url': False}  # Возврат False при ошибке соединения
     response_code = response.status_code  # Получение кода ответа
 
     soup = BeautifulSoup(response.text, 'html.parser')  # Получение остальных данных ответа
@@ -106,7 +111,7 @@ def make_request(url: str) -> dict:
     # Ни одно из значений не будет None,
     # поэтому проверки на добавление NULL значений в базу данных не требуется
     return {
-        'url': fixed_url,
+        'url': url,
         'response_code': response_code,
         'h1': h1_content,
         'title': title_content,
@@ -167,7 +172,7 @@ def _correct_scheme(parsed_url: str, scheme: str) -> str:  # Получение 
         Пример:
         url = 'https://www.google.com'
         parsed_url = ('HTML', 'www.google.com', '', '', '', '')
-        parsed_url[1:] = ('www.google.com', '', '', '', '')
+        parsed_url.scheme = ('www.google.com', '', '', '', '')
         '''
         return urlunparse(parsed_url._replace(scheme=scheme))  # Возврат URL с валидной схемой
     return urlunparse(parsed_url)  # Возврат исходного URL
