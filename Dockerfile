@@ -1,43 +1,45 @@
-# Use the official Python image from the Docker Hub
+# Использование сжатой версии образа python для снижения размера образа
 FROM python:3.12-slim
 
-# Create a non-root user and group
+# Создание обычного пользователя для использования вместо root для большей безопасности
 RUN groupadd -r appuser && useradd --no-log-init -r -g appuser appuser
 
-# Create the home directory for appuser and ensure permissions
+# Создание домашней директории для пользователя и установка прав на нее
 RUN mkdir -p /home/appuser && chown -R appuser:appuser /home/appuser
 
-# Set the working directory in the container
+# Создание рабочей директории для приложения
+# Docker будет использовать эту директорию
 WORKDIR /app
 
-# Add the local bin directory to PATH
+# Добавление пути к исполняемым файлам в переменную окружения PATH
 ENV PATH="$PATH:/home/appuser/.local/bin"
 
 # Update the package list and install make gcc and libpq-dev (for postgresql) and remove the package list (cached files created by apt-get update)
-# apt-get is better than apt because it is designed for scripts and automation
+# apt-get лучше справляется со скриптами и автоматическими установками, чем apt
 RUN apt-get update && apt-get install -yq make build-essential gcc libpq-dev && apt-get clean && rm -rf /var/lib/apt/lists/*
 
-# Switch to the non-root user
+# Переключение с root на обычного пользователя
 USER appuser
 
-# Install Poetry without root permissions
+# Установка poetry (без root, поэтому только в рамках домашней директории)
 RUN pip install poetry
 
-# Copy the pyproject.toml and poetry.lock files from the current directory to the container ./
+# Копирование конфигурационных файлов для установки зависимостей
 COPY pyproject.toml poetry.lock ./
 
-# Install dependencies without installing the whole project
+# Установка только зависимостей (без установки самого приложения)
+# Это позволяет использовать кэширование слоев Docker, что ускоряет сборку
 RUN poetry install --no-root
 
-# Copy the rest of the application code from the host . to the container .
+# Копирование образа из директории хоста в рабочую директорию /app
 COPY . .
 
-# Set environment variables
+# Установках переменных среды для запуска приложения при помощи Flask
 ENV FLASK_APP=page_analyzer.app:app
 ENV FLASK_RUN_HOST=0.0.0.0
 
-# No need to expose the port the app runs on
-# Render handles the port assignment dynamically
+# Порт не устанавливается, так как используется Render
+# Render самостоятельно назначает порт (указывается в настройках среды в проекте на Render)
 
-# Run the application inside shell to use the environment variable $PORT provided by Render
+# Запуск приложения
 CMD ["sh", "-c", "poetry run gunicorn --bind=0.0.0.0:$PORT page_analyzer.app:app"]

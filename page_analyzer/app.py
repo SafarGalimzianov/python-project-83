@@ -85,30 +85,32 @@ def format_date(date: str) -> str:
 # Запрос к странице по URL вида https://www.example.com
 # Получение URL в виде строки и возвращение данных ответа в виде словаря
 def make_request(url: str) -> dict:
-    if validate_and_fix_url(url):  # Проверка URL на доступность и исправление ошибки в URL при недоступности
-        url = validate_and_fix_url(url)  # Исправление URL при недоступности
-    else:
+    fixed_url = validate_and_fix_url(url)  # Проверка URL на доступность и исправление ошибки в URL при недоступности
+    if not fixed_url:
         return {'url': False}  # Возврат False при недоступности URL
-    response = requests.get(url)  # Получение ответа
-    response_code = response.status_code  # Поулчение кода ответа
+    response = requests.get(fixed_url)  # Получение ответа
+    response_code = response.status_code  # Получение кода ответа
 
     soup = BeautifulSoup(response.text, 'html.parser')  # Получение остальных данных ответа
-    h1_content = soup.h1.string if soup.h1 else ''  # Получение данных шапки
-    title_content = soup.title.string if soup.title else ''  # Получение данных заголовка
+    h1_content = soup.h1.string if (soup.h1 and soup.h1.string) else ''  # Получение данных шапки
+    title_content = soup.title.string if (soup.title and soup.title.string)  else ''  # Получение данных заголовка
 
     description_content = ''  # Значениие по умолчанию для метатега 'description'
     if soup.find('meta', attrs={'name': 'description'}):  # Если у страницы есть метатег 'description'
         # Получение данных метатега 'description'
         description_content = soup.find('meta', attrs={'name': 'description'})['content']
-    check_date = format_date(response.headers.get('Date'))  # Получение даты запроса
+    date_header = response.headers.get('Date')
+    check_date = format_date(date_header) if date_header else get_current_date()  # Получение даты запроса
 
     # Возврат данных ответа в виде словаря
+    # Ни одно из значений не будет None,
+    # поэтому проверки на добавление NULL значений в базу данных не требуется
     return {
-        'url': url,
+        'url': fixed_url,
         'response_code': response_code,
-        'h1_content': h1_content,
-        'title_content': title_content,
-        'description_content': description_content,
+        'h1': h1_content,
+        'title': title_content,
+        'description': description_content,
         'check_date': check_date
     }
 
@@ -116,22 +118,35 @@ def make_request(url: str) -> dict:
 # Проверка URL на доступность
 def validate_and_fix_url(url: str) -> bool:  # Получение URL в виде строки и возвращение True или False
     funcs = {
-        'correct_syntax': validators.url,  # Проверка синтаксиса URL
         'is_reachable': _is_reachable,  # Проверка доступности URL
         'correct_scheme': _correct_scheme,  # Проверка схемы URL
         'extract_domain': _extract_domain  # Извлечение домена из URL
     }
     # Проверка синтаксиса URL
-    if funcs['correct_syntax'](url):
+    if funcs['is_reachable'](url):
         return url  # Возврат исходного URL
 
     # Попытка исправить схему URL
     valid_schemes = ['https', 'http']  # Список валидных схем
-    for scheme in valid_schemes:  # Перебор схем
-        parsed_url = urlparse(url)  # Парсинг URL
-        corrected_url = funcs['correct_scheme'](parsed_url, scheme)  # Проверка схемы URL
-        if funcs['is_reachable'](corrected_url):  # Если URL доступен
-            return corrected_url  # Возврат исправленного URL
+    parsed_url = urlparse(url)  # Парсинг URL
+
+    if parsed_url.scheme not in valid_schemes:  # Если схема URL не в списке валидных схем
+        for scheme in valid_schemes:  # Перебор схем
+            corrected_url = funcs['correct_scheme'](parsed_url, scheme)  # Проверка схемы URL
+            if funcs['is_reachable'](corrected_url):  # Если URL доступен
+                return corrected_url  # Возврат исправленного URL
+
+    # Попытка исправить домен URl
+    domain_info = funcs['extract_domain'](url)
+    if not domain_info:
+        return False  # Возврат False при недоступности URL
+    domain, path = domain_info
+    parsed_url = urlparse(url)
+    for scheme in valid_schemes:
+        if funcs['is_reachable'](urlunparse(parsed_url._replace(scheme=scheme, netloc=domain, path=''))):
+            if path and funcs['is_reachable'](urlunparse(parsed_url._replace(scheme=scheme, netloc=domain, path=path))):
+                return urlunparse(parsed_url._replace(scheme=scheme, netloc=domain, path=path))
+            return urlunparse(parsed_url._replace(scheme=scheme, netloc=domain, path=''))
 
     # Попытка исправить домен URl
     domain_info = funcs['extract_domain'](url)
@@ -155,7 +170,7 @@ def _correct_scheme(parsed_url: str, scheme: str) -> str:  # Получение 
         parsed_url[1:] = ('www.google.com', '', '', '', '')
         '''
         return urlunparse(parsed_url._replace(scheme=scheme))  # Возврат URL с валидной схемой
-    return parsed_url  # Возврат исходного URL
+    return urlunparse(parsed_url)  # Возврат исходного URL
 
 
 def _is_reachable(url: str) -> bool:  # Получение URL в виде строки и возвращение True или False
@@ -233,9 +248,9 @@ def get_url(url_id):  # Получение id URL, который совпада
 
 # Проверка URL
 @app.post('/url/<int:url_id>')  # Проверка URL производится на странице с информацией о сайте
-def check_url(url_id):  # Проверка URL, поэтому check_url
+def check_url(url_id: int):  # Проверка URL, поэтому check_url
     url = repo.get_url_address(url_id)['url']  # Получение информации о URL по url_id
-    if not url:  # Если прошедний при добавлении в базу данных URL больше не доступен
+    if not url:  # Если прошедший при добавлении в базу данных URL больше не доступен
         flash('URL больше не доступен', 'error')  # Предложение пользователю удалить URL
         abort(404)  # Вызов ошибки 404
     data = make_request(url)  # Получение данных ответа
@@ -247,10 +262,26 @@ def check_url(url_id):  # Проверка URL, поэтому check_url
 @app.get('/urls')  # Для выводы списка всех добавленных URL используется отдельная страница
 def get_urls():  # Получение списка URL, поэтому get_urls
     urls = repo.get_urls()  # Получение списка URL из базы данных
-    return render_template('temp.html', data=urls)  # Отображение списка URL
     return render_template('main/urls.html', urls=urls)  # Отображение списка URL
 
-# Отображение ошибки 404
+# Обработка HTTP ошибок
+@app.errorhandler(400)
 @app.errorhandler(404)
-def error_404(e):
-    return render_template('errors/404.html')
+@app.errorhandler(500)
+def handle_error(e):
+    # Коды ошибок и сообщения
+    error_messages = {
+        400: "Неверный запрос",
+        404: "Такой страницы не существует",
+        500: "Внутренняя ошибка сервера"
+    }
+    
+    # Получение кода ошибки
+    error_code = e.code if hasattr(e, 'code') else 500
+    error_msg = error_messages.get(error_code, "Unknown Error")
+    
+    return render_template(
+        'errors/error.html',
+        error_code=error_code,
+        error_message=error_msg
+    ), error_code

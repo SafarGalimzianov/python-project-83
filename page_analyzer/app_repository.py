@@ -2,28 +2,33 @@ from psycopg.rows import dict_row
 
 
 class AppRepository:
-    def __init__(self, conn):
+    def __init__(self, conn) -> None:
         self.conn = conn
         self.urls_table = 'urls_table'
         self.checks_table = 'checks_table'
+        # Создание таблиц
+        # Ни одно из полей не может быть NULL,
+        # так как такие случаи предотвращаются в функции make_request() в app.py
         with self.conn.cursor() as cur:
             cur.execute(f'''
                 CREATE TABLE IF NOT EXISTS {self.urls_table}(
-                id INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-                url VARCHAR(255),
-                creation_date DATE
-            );''')
+                    id INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+                    url VARCHAR(255) NOT NULL,
+                    creation_date DATE NOT NULL
+                );
+            ''')
             cur.execute(f'''
                 CREATE TABLE IF NOT EXISTS {self.checks_table}(
-                id INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-                url_id INTEGER REFERENCES {self.urls_table}(id),
-                check_id INTEGER,
-                response_code INTEGER,
-                h1_content TEXT,
-                title_content TEXT,
-                description_content TEXT,
-                check_date DATE
-            );''')
+                    id INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+                    url_id INTEGER REFERENCES {self.urls_table}(id) NOT NULL,
+                    check_id INTEGER NOT NULL,
+                    response_code INTEGER NOT NULL,
+                    h1_content TEXT NOT NULL,
+                    title_content TEXT NOT NULL,
+                    description_content TEXT NOT NULL,
+                    check_date DATE NOT NULL
+                );
+            ''')
             cur.execute(f'''
                 CREATE INDEX IF NOT EXISTS
                 idx_urls_table_url ON {self.urls_table}(url)
@@ -78,7 +83,7 @@ class AppRepository:
             ;''')
         self.conn.commit()
 
-    # Метод получения всех сайтов с их последними проверками
+    # Метод получения всех URL с их последними проверками
     def get_urls(self):
         with self.conn.cursor(row_factory=dict_row) as cur:
             cur.execute(f'''
@@ -101,8 +106,8 @@ class AppRepository:
             ''')
             return cur.fetchall()
 
-    # Метод получения информации о сайте с его последней проверкой
-    def get_url_info(self, url_id):
+    # Метод получения информации о URL с его последней проверкой
+    def get_url_info(self, url_id: int) -> dict:
         with self.conn.cursor(row_factory=dict_row) as cur:
             cur.execute(f'''
                     SELECT url, creation_date
@@ -113,8 +118,8 @@ class AppRepository:
             })
             return cur.fetchone()
 
-    # Метод поиска проверок сайта по его имени
-    def get_url_checks(self, url_id):
+    # Метод поиска проверок URL по его имени
+    def get_url_checks(self, url_id: int) -> list:
         with self.conn.cursor(row_factory=dict_row) as cur:
             cur.execute(f'''
                 SELECT
@@ -132,8 +137,8 @@ class AppRepository:
             })
             return cur.fetchall()
 
-    # Метод получения адреса сайта
-    def get_url_address(self, url_id):
+    # Метод получения адреса URL по его id
+    def get_url_address(self, url_id: int) -> dict:
         with self.conn.cursor(row_factory=dict_row) as cur:
             cur.execute(f'''
                 SELECT url
@@ -144,8 +149,8 @@ class AppRepository:
             })
             return cur.fetchone()
 
-    # Метод проверки сайта
-    def check_url(self, data):
+    # Метод проверки URL
+    def check_url(self, data: dict) -> None:
         with self.conn.cursor(row_factory=dict_row) as cur:
             # Получение id URL
             cur.execute(f'''
@@ -156,9 +161,9 @@ class AppRepository:
                 'url': data['url'],
             })
 
-            url_id = cur.fetchone()['id']
-
-            if not url_id:
+            try:
+                url_id = cur.fetchone()['id']
+            except TypeError:
                 raise ValueError('URL not found in urls_list')
 
             # Добавление данных проверки URL
@@ -181,17 +186,21 @@ class AppRepository:
             ''', {
                 'url_id': url_id,
                 'response_code': data['response_code'],
-                'h1_content': data['h1_content'],
-                'title_content': data['title_content'],
-                'description_content': data['description_content'],
+                'h1_content': data['h1'],
+                'title_content': data['title'],
+                'description_content': data['description'],
                 'check_date': data['check_date'],
             })
         self.conn.commit()
 
-    # Методы добавления нового сайта
-    def add_url(self, url, creation_date):
+    # Методы добавления нового URL
+    def add_url(self, url: str, creation_date: str) -> dict:
         with self.conn.cursor(row_factory=dict_row) as cur:
-            # Check if the URL already exists
+            if not isinstance(url, str):
+                raise TypeError("URL must be a string")
+            if not isinstance(creation_date, str):
+                raise TypeError("Creation date must be a string")
+            # Проверка на существование URL в базе данных
             cur.execute(f'''
                 SELECT id
                 FROM {self.urls_table}
@@ -200,7 +209,7 @@ class AppRepository:
                 'url': url,
             })
             result = cur.fetchone()
-
+            # Если URL уже существует
             if result:
                 # Возврат id уже существующего URL
                 url_id = result

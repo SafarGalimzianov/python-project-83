@@ -1,0 +1,13 @@
+{% extends "errors/layout.html" %}
+
+{% block title %}Error {{ error_code }}{% endblock %}
+
+{% block errors %}
+    <h3>{{ error_code }}</h3>
+    <p>{{ error_message }}</p>
+    <a href="/">На главную страницу</a>
+{% endblock %}
+
+{% block footer %}
+    {{ super() }}
+{% endblock %}
