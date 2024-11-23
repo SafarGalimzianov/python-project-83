@@ -1,50 +1,130 @@
+<!-- url_info.html -->
 {% extends "main/layout.html" %}
-{% block title %}URL Information{% endblock %}
-{% block header %}URL Details{% endblock %}
+{% block title %}Информация об URL{% endblock %}
 
 {% block main %}
-<div class="container py-4">
-    <div class="card border-0 shadow-sm">
-        <div class="card-header bg-white border-0 py-3">
+<div class="container">
+    <div class="card info-card">
+        <div class="card-header">
             <div class="d-flex justify-content-between align-items-center">
-                <h4 class="mb-0">
-                    <i class="fas fa-info-circle me-2"></i>
-                    URL Details
-                </h4>
+                <div class="d-flex align-items-center">
+                    <div class="header-icon me-3">
+                        <i class="fas fa-info-circle"></i>
+                    </div>
+                    <h4 class="mb-0 fw-bold">Информация об URL</h4>
+                </div>
                 <form action="{{ url_for('check_url', url_id=url_id) }}" method="post">
                     <button type="submit" class="btn btn-primary">
                         <i class="fas fa-sync-alt me-2"></i>
-                        Check URL
+                        Проверить URL
                     </button>
                 </form>
             </div>
         </div>
+        
         <div class="card-body p-4">
-            <div class="mb-4">
+            <div class="url-info-section mb-4">
                 <div class="d-flex align-items-center mb-3">
-                    <div class="bg-light rounded-circle p-2 me-3">
-                        <i class="fas fa-link text-primary"></i>
+                    <div class="url-badge me-3">
+                        <i class="fas fa-link"></i>
                     </div>
-                    <h5 class="mb-0">URL ID: {{ url_id }}</h5>
+                    <div>
+                        <p class="text-secondary mb-1">URL ID</p>
+                        <h5 class="mb-0 fw-bold">{{ url_id }}</h5>
+                    </div>
                 </div>
-                <p class="card-text text-secondary">{{ url_info }}</p>
+                <div class="info-content">
+                    <p class="text-secondary mb-0">{{ url_info }}</p>
+                </div>
             </div>
             
-            <div class="mb-4">
-                <h6 class="mb-3">
-                    <i class="fas fa-history me-2"></i>
-                    Check History:
+            <div class="border-top pt-4">
+                <h6 class="d-flex align-items-center mb-3 fw-bold">
+                    <i class="fas fa-history text-primary me-2"></i>
+                    История проверок
                 </h6>
-                {% for check in checks %}
-                <div class="alert alert-info border-0 shadow-sm mb-3">
-                    <div class="d-flex align-items-center">
-                        <i class="fas fa-clock me-2"></i>
-                        {{ check }}
+                <div class="timeline">
+                    {% for check in checks %}
+                    <div class="timeline-item">
+                        <div class="timeline-marker"></div>
+                        <div class="timeline-content">
+                            <div class="alert alert-info mb-3">
+                                <div class="d-flex align-items-center">
+                                    <i class="fas fa-clock me-3"></i>
+                                    <span>{{ check }}</span>
+                                </div>
+                            </div>
+                        </div>
                     </div>
+                    {% endfor %}
                 </div>
-                {% endfor %}
             </div>
         </div>
     </div>
 </div>
+
+<style>
+.info-card {
+    background: linear-gradient(145deg, #ffffff 0%, #f8fafc 100%);
+}
+.header-icon {
+    width: 40px;
+    height: 40px;
+    background: var(--primary-color);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.header-icon i {
+    color: white;
+    font-size: 18px;
+}
+.url-badge {
+    width: 48px;
+    height: 48px;
+    background: linear-gradient(145deg, var(--primary-color), #1d4ed8);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.url-badge i {
+    color: white;
+    font-size: 20px;
+}
+.info-content {
+    background: rgba(37, 99, 235, 0.05);
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-top: 1rem;
+}
+.timeline {
+    position: relative;
+    padding-left: 2rem;
+}
+.timeline-item {
+    position: relative;
+    padding-bottom: 1.5rem;
+}
+.timeline-marker {
+    position: absolute;
+    left: -2rem;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: var(--primary-color);
+    border: 3px solid white;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2);
+}
+.timeline-item:not(:last-child)::before {
+    content: '';
+    position: absolute;
+    left: -1.65rem;
+    top: 12px;
+    bottom: 0;
+    width: 2px;
+    background: rgba(37, 99, 235, 0.2);
+}
+</style>
 {% endblock %}

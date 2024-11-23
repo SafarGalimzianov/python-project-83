@@ -42,11 +42,11 @@ app.jinja_env.autoescape = True  # Экранирование HTML-символ�
 
 # Установка заголовков безопасности
 @app.after_request
-def set_security_headers(response):
-    response.headers['Content-Security-Policy'] = "default-src 'self'; script-src 'self'; style-src 'self';"
-    response.headers['X-Content-Type-Options'] = 'nosniff'
-    response.headers['X-Frame-Options'] = 'DENY'
-    response.headers['X-XSS-Protection'] = '1; mode=block'
+def add_csp_header(response):
+    response.headers['Content-Security-Policy'] = (
+        "script-src 'self' https://cdn.jsdelivr.net; "
+        "style-src 'self' https://cdn.jsdelivr.net;"
+    )
     return response
 
 

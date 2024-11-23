@@ -1,32 +1,50 @@
+<!-- urls.html -->
 {% extends "main/layout.html" %}
 {% block title %}URL в базе{% endblock %}
-{% block header %}Список URL{% endblock %}
 
 {% block main %}
-<div class="container py-4">
-    <div class="card border-0 shadow-sm">
-        <div class="card-header bg-white border-0 py-3">
-            <h4 class="mb-0">
-                <i class="fas fa-link me-2"></i>
-                Список URL
-            </h4>
+<div class="container">
+    <div class="card urls-card">
+        <div class="card-header">
+            <div class="d-flex justify-content-between align-items-center">
+                <div class="d-flex align-items-center">
+                    <div class="header-icon me-3">
+                        <i class="fas fa-link"></i>
+                    </div>
+                    <h4 class="mb-0 fw-bold">Список URL</h4>
+                </div>
+                <div class="urls-counter">
+                    <span class="badge bg-primary rounded-pill">
+                        {{ urls|length }}
+                    </span>
+                </div>
+            </div>
         </div>
         <div class="card-body p-0">
             <div class="table-responsive">
-                <table class="table table-hover mb-0">
-                    <thead class="bg-light">
+                <table class="table table-hover align-middle mb-0">
+                    <thead>
                         <tr>
-                            <th class="border-0 px-4 py-3">URL</th>
+                            <th class="px-4 py-3">URL</th>
+                            <th class="px-4 py-3 text-end">Действия</th>
                         </tr>
                     </thead>
                     <tbody>
                         {% for url in urls %}
-                        <tr>
+                        <tr class="url-row">
                             <td class="px-4 py-3">
+                                <div class="d-flex align-items-center">
+                                    <div class="url-icon me-3">
+                                        <i class="fas fa-globe"></i>
+                                    </div>
+                                    <span class="url-text">{{ url }}</span>
+                                </div>
+                            </td>
+                            <td class="px-4 py-3 text-end">
                                 <a href="{{ url_for('get_url', url_id=url['id']) }}" 
-                                   class="text-decoration-none d-flex align-items-center">
-                                    <i class="fas fa-external-link-alt me-2 text-muted"></i>
-                                    {{ url }}
+                                   class="btn btn-primary btn-sm">
+                                    <i class="fas fa-info-circle me-2"></i>
+                                    Подробнее
                                 </a>
                             </td>
                         </tr>
@@ -37,4 +55,49 @@
         </div>
     </div>
 </div>
+
+<style>
+.urls-card {
+    background: white;
+}
+.header-icon {
+    width: 40px;
+    height: 40px;
+    background: var(--primary-color);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.header-icon i {
+    color: white;
+    font-size: 18px;
+}
+.url-icon {
+    width: 36px;
+    height: 36px;
+    background: rgba(37, 99, 235, 0.1);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.url-icon i {
+    color: var(--primary-color);
+}
+.url-row {
+    transition: all 0.3s ease;
+}
+.url-row:hover {
+    background: rgba(37, 99, 235, 0.05);
+}
+.url-text {
+    font-size: 0.95rem;
+    color: var(--text-primary);
+}
+.urls-counter .badge {
+    font-size: 0.9rem;
+    padding: 0.5em 1em;
+}
+</style>
 {% endblock %}
