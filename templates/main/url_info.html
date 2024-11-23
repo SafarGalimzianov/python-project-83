@@ -1,26 +1,50 @@
 {% extends "main/layout.html" %}
-
-{% block title %}Main page{% endblock %}
-
-{% block header %}You are on the main page{% endblock %}
-
-{% block messages %}
-{% endblock %}
+{% block title %}URL Information{% endblock %}
+{% block header %}URL Details{% endblock %}
 
 {% block main %}
-{{ url_id }}
-<br>
-{{ url_info }}
-<br>
-{% for check in checks %}
-    {{ check }}<br>
-{% endfor %}
-
-<form action="{{ url_for('check_url', url_id=url_id) }}" method="post">
-    <input type="submit" value="Check URL">
-</form>
-{% endblock %}
-
-{% block footer %}
-    {{ super() }}
+<div class="container py-4">
+    <div class="card border-0 shadow-sm">
+        <div class="card-header bg-white border-0 py-3">
+            <div class="d-flex justify-content-between align-items-center">
+                <h4 class="mb-0">
+                    <i class="fas fa-info-circle me-2"></i>
+                    URL Details
+                </h4>
+                <form action="{{ url_for('check_url', url_id=url_id) }}" method="post">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-sync-alt me-2"></i>
+                        Check URL
+                    </button>
+                </form>
+            </div>
+        </div>
+        <div class="card-body p-4">
+            <div class="mb-4">
+                <div class="d-flex align-items-center mb-3">
+                    <div class="bg-light rounded-circle p-2 me-3">
+                        <i class="fas fa-link text-primary"></i>
+                    </div>
+                    <h5 class="mb-0">URL ID: {{ url_id }}</h5>
+                </div>
+                <p class="card-text text-secondary">{{ url_info }}</p>
+            </div>
+            
+            <div class="mb-4">
+                <h6 class="mb-3">
+                    <i class="fas fa-history me-2"></i>
+                    Check History:
+                </h6>
+                {% for check in checks %}
+                <div class="alert alert-info border-0 shadow-sm mb-3">
+                    <div class="d-flex align-items-center">
+                        <i class="fas fa-clock me-2"></i>
+                        {{ check }}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}

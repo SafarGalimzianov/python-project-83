@@ -1,23 +1,49 @@
 {% extends "main/layout.html" %}
-
 {% block title %}Главная страница{% endblock %}
-{% block header %}
-Вы на главной странице
-<a href="{{ url_for('search') }}">Главная</a>
 
-<a href="{{ url_for('get_urls') }}">Информация о URL</a>
-{% endblock %}
-{% block messages %}
+{% block header %}
+<ul class="navbar-nav me-auto mb-2 mb-lg-0">
+    <li class="nav-item">
+        <a class="nav-link active" href="{{ url_for('search') }}">
+            <i class="fas fa-home me-1"></i>
+            Главная
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" href="{{ url_for('get_urls') }}">
+            <i class="fas fa-list me-1"></i>
+            Информация о URL
+        </a>
+    </li>
+</ul>
 {% endblock %}
 
 {% block main %}
-<form action="{{ url_for('search') }}" method="post">
-    <input type="text" name="url" value="{{ search|e }}" placeholder="Search" required>
-    <input type="submit" value="Search">
-</form>
-{% endblock %}
-
-
-{% block footer %}
-    {{ super() }}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body p-4">
+                    <h2 class="text-center mb-4">Поиск URL</h2>
+                    <form action="{{ url_for('search') }}" method="post" class="d-flex gap-2">
+                        <div class="input-group">
+                            <span class="input-group-text bg-white border-end-0">
+                                <i class="fas fa-search text-muted"></i>
+                            </span>
+                            <input type="text" 
+                                   class="form-control border-start-0 ps-0" 
+                                   name="url" 
+                                   value="{{ search|e }}" 
+                                   placeholder="Введите URL для поиска" 
+                                   required>
+                            <button type="submit" class="btn btn-primary px-4">
+                                Поиск
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}

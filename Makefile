@@ -16,10 +16,10 @@ g:
 	poetry run gunicorn --bind=localhost:$(PORT) page_analyzer.app:app
 
 t:
-	poetry run pytest
+	poetry run pytest .
 
 tv:
-	poetry run pytest -v
+	poetry run pytest -v .
 
 l:
 	poetry run flake8 page_analyzer/app.py page_analyzer/app_repository.py

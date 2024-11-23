@@ -1,23 +1,40 @@
 {% extends "main/layout.html" %}
-
-{% block title %}URl в базе{% endblock %}
-
-{% block header %}Список{% endblock %}
-
-
-{% block messages %}
-{% endblock %}
+{% block title %}URL в базе{% endblock %}
+{% block header %}Список URL{% endblock %}
 
 {% block main %}
-<tbody>
-    <tr>
-        {% for url in urls %}
-        <td><a href="{{ url_for('get_url', url_id=url['id']) }}">{{ url }}</a></td><br>
-        {% endfor %}
-    </tr>
-</tbody>
-{% endblock %}
-
-{% block footer %}
-    {{ super() }}
+<div class="container py-4">
+    <div class="card border-0 shadow-sm">
+        <div class="card-header bg-white border-0 py-3">
+            <h4 class="mb-0">
+                <i class="fas fa-link me-2"></i>
+                Список URL
+            </h4>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead class="bg-light">
+                        <tr>
+                            <th class="border-0 px-4 py-3">URL</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for url in urls %}
+                        <tr>
+                            <td class="px-4 py-3">
+                                <a href="{{ url_for('get_url', url_id=url['id']) }}" 
+                                   class="text-decoration-none d-flex align-items-center">
+                                    <i class="fas fa-external-link-alt me-2 text-muted"></i>
+                                    {{ url }}
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}

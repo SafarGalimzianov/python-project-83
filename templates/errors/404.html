@@ -1,8 +1,11 @@
 {% extends "errors/layout.html" %}
 
 {% block errors %}
-    <h3>404</h3>
-    <p>Страница не найдена</p>
+    <div class="container text-center mt-5">
+        <h3 class="display-4">404</h3>
+        <p class="lead">Страница не найдена</p>
+        <a href="/" class="btn btn-primary mt-3">На главную страницу</a>
+    </div>
 {% endblock %}
 
 {% block footer %}
