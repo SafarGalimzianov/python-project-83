@@ -12,16 +12,9 @@ class AppRepository:
 
         with self.conn.cursor() as cur:
             cur.execute(f'''
-                DROP TABLE IF EXISTS {self.urls_table};
-                DROP SEQUENCE IF EXISTS check_id_seq;
-                );
-            ''')
-
-        with self.conn.cursor() as cur:
-            cur.execute(f'''
-                DROP TABLE IF EXISTS {self.checks_table};
-                DROP SEQUENCE IF EXISTS check_id_seq;
-                );
+                DROP TABLE IF EXISTS {self.urls_table} CASCADE;
+                DROP TABLE IF EXISTS {self.checks_table} CASCADE;
+                DROP SEQUENCE IF EXISTS check_id_seq CASCADE;
             ''')
 
         with self.conn.cursor() as cur:
