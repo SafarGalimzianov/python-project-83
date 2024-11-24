@@ -35,6 +35,7 @@ jobs:
 
         - name: Run tests
           run: |
+            poetry run pip install pytest-cov
             poetry run pytest --cov=page_analyzer --cov-report=xml
 
         - name: Upload coverage to CodeClimate 
