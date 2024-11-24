@@ -33,7 +33,7 @@ RUN poetry install --no-root
 
 RUN pip install --upgrade pip
 
-RUN pip install psycopg[binary]
+RUN pip install "psycopg[binary]"
 
 # Копирование образа из директории хоста в рабочую директорию /app
 COPY . .
