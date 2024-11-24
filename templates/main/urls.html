@@ -1,6 +1,9 @@
-<!-- urls.html -->
 {% extends "main/layout.html" %}
 {% block title %}URL в базе{% endblock %}
+
+{% block page_css %}
+<link href="{{ url_for('static', filename='css/pages/urls.css') }}" rel="stylesheet">
+{% endblock %}
 
 {% block main %}
 <div class="container">
@@ -25,20 +28,27 @@
                 <table class="table table-hover align-middle mb-0">
                     <thead>
                         <tr>
+                            <th class="px-4 py-3 col-id">#</th>
                             <th class="px-4 py-3">URL</th>
-                            <th class="px-4 py-3 text-end">Действия</th>
+                            <th class="px-4 py-3 col-date">Последняя проверка</th>
+                            <th class="px-4 py-3 col-code">Код ответа</th>
+                            <th class="px-4 py-3 col-actions text-end">Подробная информация</th>
                         </tr>
                     </thead>
                     <tbody>
                         {% for url in urls %}
                         <tr class="url-row">
+                            <td class="px-4 py-3">{{ url['id'] }}</td>
+                            <td class="px-4 py-3">{{ url['url'] }}</td>
+                            <td class="px-4 py-3">{{ url['check_date']|default('Нет проверок', true) }}</td>
                             <td class="px-4 py-3">
-                                <div class="d-flex align-items-center">
-                                    <div class="url-icon me-3">
-                                        <i class="fas fa-globe"></i>
-                                    </div>
-                                    <span class="url-text">{{ url }}</span>
-                                </div>
+                                {% if url['response_code'] %}
+                                    <span class="badge bg-{{ 'success' if url['response_code'] == 200 else 'warning' }}">
+                                        {{ url['response_code'] }}
+                                    </span>
+                                {% else %}
+                                    -
+                                {% endif %}
                             </td>
                             <td class="px-4 py-3 text-end">
                                 <a href="{{ url_for('get_url', url_id=url['id']) }}" 
@@ -55,49 +65,4 @@
         </div>
     </div>
 </div>
-
-<style>
-.urls-card {
-    background: white;
-}
-.header-icon {
-    width: 40px;
-    height: 40px;
-    background: var(--primary-color);
-    border-radius: 10px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-.header-icon i {
-    color: white;
-    font-size: 18px;
-}
-.url-icon {
-    width: 36px;
-    height: 36px;
-    background: rgba(37, 99, 235, 0.1);
-    border-radius: 8px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-.url-icon i {
-    color: var(--primary-color);
-}
-.url-row {
-    transition: all 0.3s ease;
-}
-.url-row:hover {
-    background: rgba(37, 99, 235, 0.05);
-}
-.url-text {
-    font-size: 0.95rem;
-    color: var(--text-primary);
-}
-.urls-counter .badge {
-    font-size: 0.9rem;
-    padding: 0.5em 1em;
-}
-</style>
 {% endblock %}

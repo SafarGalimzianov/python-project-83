@@ -1,0 +1,35 @@
+.urls-card {
+    background: white;
+}
+
+.url-icon {
+    width: 36px;
+    height: 36px;
+    background: rgba(37, 99, 235, 0.1);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.url-icon i {
+    color: var(--primary-color);
+}
+
+.url-row {
+    transition: all 0.3s ease;
+}
+
+.url-row:hover {
+    background: rgba(37, 99, 235, 0.05);
+}
+
+.url-text {
+    font-size: 0.95rem;
+    color: var(--text-primary);
+}
+
+.urls-counter .badge {
+    font-size: 0.9rem;
+    padding: 0.5em 1em;
+}

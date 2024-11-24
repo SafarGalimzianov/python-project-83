@@ -2,6 +2,10 @@
 {% extends "main/layout.html" %}
 {% block title %}Информация об URL{% endblock %}
 
+{% block page_css %}
+<link href="{{ url_for('static', filename='css/pages/url-info.css') }}" rel="stylesheet">
+{% endblock %}
+
 {% block main %}
 <div class="container">
     <div class="card info-card">
@@ -22,109 +26,68 @@
             </div>
         </div>
         
-        <div class="card-body p-4">
-            <div class="url-info-section mb-4">
-                <div class="d-flex align-items-center mb-3">
-                    <div class="url-badge me-3">
-                        <i class="fas fa-link"></i>
-                    </div>
-                    <div>
-                        <p class="text-secondary mb-1">URL ID</p>
-                        <h5 class="mb-0 fw-bold">{{ url_id }}</h5>
-                    </div>
-                </div>
-                <div class="info-content">
-                    <p class="text-secondary mb-0">{{ url_info }}</p>
-                </div>
-            </div>
-            
-            <div class="border-top pt-4">
-                <h6 class="d-flex align-items-center mb-3 fw-bold">
-                    <i class="fas fa-history text-primary me-2"></i>
-                    История проверок
-                </h6>
-                <div class="timeline">
+        <!-- Update url_info.html content section -->
+<div class="card-body p-4">
+    <div class="table-responsive mb-4">
+        <table class="table table-bordered">
+            <tbody>
+                <tr>
+                    <th class="bg-light">
+                        <i class="fas fa-link text-primary me-2"></i>URL
+                    </th>
+                    <td>{{ url }}</td>
+                </tr>
+                <tr>
+                    <th class="bg-light">
+                        <i class="fas fa-calendar text-primary me-2"></i>Дата создания
+                    </th>
+                    <td>{{ creation_date }}</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="border-top pt-4">
+        <h6 class="d-flex align-items-center mb-3 fw-bold">
+            <i class="fas fa-history text-primary me-2"></i>
+            История проверок
+        </h6>
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead>
+                    <tr>
+                        <th class="px-4 py-3 col-code">#</th>
+                        <th class="px-4 py-3 col-code">Код</th>
+                        <th class="px-4 py-3 col-content">H1</th>
+                        <th class="px-4 py-3 col-content">Заголовок</th>
+                        <th class="px-4 py-3 col-content">Описание</th>
+                        <th class="px-4 py-3 col-date">Дата проверки</th>
+                    </tr>
+                </thead>
+                <tbody>
                     {% for check in checks %}
-                    <div class="timeline-item">
-                        <div class="timeline-marker"></div>
-                        <div class="timeline-content">
-                            <div class="alert alert-info mb-3">
-                                <div class="d-flex align-items-center">
-                                    <i class="fas fa-clock me-3"></i>
-                                    <span>{{ check }}</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                    <tr>
+                        <td class="px-4 py-3">{{ check['check_id'] }}</td>
+                        <td class="px-4 py-3">
+                            <span class="badge bg-{{ 'success' if check['response_code'] == 200 else 'warning' }}">
+                                {{ check['response_code'] }}
+                            </span>
+                        </td>
+                        <td class="px-4 py-3 content-cell">
+                            <div class="content-preview">{{ check['h1_content'] }}</div>
+                        </td>
+                        <td class="px-4 py-3 content-cell">
+                            <div class="content-preview">{{ check['title_content'] }}</div>
+                        </td>
+                        <td class="px-4 py-3 content-cell">
+                            <div class="content-preview">{{ check['description_content'] }}</div>
+                        </td>
+                        <td class="px-4 py-3">{{ check['check_date'] }}</td>
+                    </tr>
                     {% endfor %}
-                </div>
-            </div>
+                </tbody>
+            </table>
         </div>
     </div>
 </div>
-
-<style>
-.info-card {
-    background: linear-gradient(145deg, #ffffff 0%, #f8fafc 100%);
-}
-.header-icon {
-    width: 40px;
-    height: 40px;
-    background: var(--primary-color);
-    border-radius: 10px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-.header-icon i {
-    color: white;
-    font-size: 18px;
-}
-.url-badge {
-    width: 48px;
-    height: 48px;
-    background: linear-gradient(145deg, var(--primary-color), #1d4ed8);
-    border-radius: 12px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-.url-badge i {
-    color: white;
-    font-size: 20px;
-}
-.info-content {
-    background: rgba(37, 99, 235, 0.05);
-    border-radius: 12px;
-    padding: 1.5rem;
-    margin-top: 1rem;
-}
-.timeline {
-    position: relative;
-    padding-left: 2rem;
-}
-.timeline-item {
-    position: relative;
-    padding-bottom: 1.5rem;
-}
-.timeline-marker {
-    position: absolute;
-    left: -2rem;
-    width: 12px;
-    height: 12px;
-    border-radius: 50%;
-    background: var(--primary-color);
-    border: 3px solid white;
-    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2);
-}
-.timeline-item:not(:last-child)::before {
-    content: '';
-    position: absolute;
-    left: -1.65rem;
-    top: 12px;
-    bottom: 0;
-    width: 2px;
-    background: rgba(37, 99, 235, 0.2);
-}
-</style>
 {% endblock %}

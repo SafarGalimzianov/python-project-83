@@ -1,96 +1,48 @@
-<!-- search.html -->
 {% extends "main/layout.html" %}
 {% block title %}Поиск URL{% endblock %}
 
-{% block header %}
-<ul class="navbar-nav me-auto mb-2 mb-lg-0">
-    <li class="nav-item">
-        <a class="nav-link active" href="{{ url_for('search') }}">
-            <i class="fas fa-search me-1"></i>
-            Поиск
-        </a>
-    </li>
-    <li class="nav-item">
-        <a class="nav-link" href="{{ url_for('get_urls') }}">
-            <i class="fas fa-clock me-1"></i>
-            История
-        </a>
-    </li>
-</ul>
+{% block page_css %}
+<link href="{{ url_for('static', filename='css/pages/search.css') }}" rel="stylesheet">
 {% endblock %}
 
 {% block main %}
-<div class="container">
-    <div class="row justify-content-center">
-        <div class="col-lg-8">
-            <div class="card search-card">
-                <div class="card-body p-5">
-                    <div class="text-center mb-5">
-                        <div class="search-icon-wrapper mb-4">
-                            <i class="fas fa-search"></i>
-                        </div>
-                        <h2 class="fw-bold mb-3">Поиск URL</h2>
-                        <p class="text-secondary">Введите URL для получения подробной информации</p>
-                    </div>
-                    
-                    <form action="{{ url_for('search') }}" method="post">
-                        <div class="search-input-wrapper">
-                            <div class="input-group">
-                                <span class="input-group-text">
-                                    <i class="fas fa-link"></i>
-                                </span>
-                                <input type="text" 
-                                       class="form-control form-control-lg"
-                                       name="url" 
-                                       value="{{ search|e }}"
-                                       placeholder="https://example.com"
-                                       required>
-                                <button type="submit" class="btn btn-primary btn-lg px-4">
-                                    <i class="fas fa-search me-2"></i>
-                                    Поиск
-                                </button>
+<div class="search-section">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="card search-card">
+                    <div class="card-body p-5">
+                        <div class="text-center mb-5">
+                            <div class="search-icon-wrapper mb-4">
+                                <i class="fas fa-search"></i>
                             </div>
+                            <h2 class="fw-bold mb-3">Поиск URL</h2>
+                            <p class="text-secondary">Введите URL для получения подробной информации</p>
                         </div>
-                    </form>
+                        
+                        <form action="{{ url_for('search') }}" method="post">
+                            <div class="search-input-wrapper">
+                                <div class="input-group">
+                                    <span class="input-group-text">
+                                        <i class="fas fa-link"></i>
+                                    </span>
+                                    <input type="text" 
+                                        class="form-control form-control-lg"
+                                        name="url" 
+                                        value="{{ search|e }}"
+                                        placeholder="https://example.com"
+                                        required>
+                                    <button type="submit" class="btn btn-primary btn-lg px-4">
+                                        <i class="fas fa-search me-2"></i>
+                                        Поиск
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
-
-<style>
-.search-card {
-    background: linear-gradient(145deg, #ffffff 0%, #f8fafc 100%);
-}
-.search-icon-wrapper {
-    width: 80px;
-    height: 80px;
-    background: linear-gradient(145deg, var(--primary-color), #1d4ed8);
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin: 0 auto;
-}
-.search-icon-wrapper i {
-    font-size: 32px;
-    color: white;
-}
-.search-input-wrapper {
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
-    border-radius: 12px;
-}
-.input-group-text {
-    background: white;
-    border: none;
-    color: var(--text-secondary);
-}
-.form-control {
-    border: none;
-    padding: 0.8rem 1rem;
-}
-.form-control:focus {
-    box-shadow: none;
-}
-</style>
 {% endblock %}

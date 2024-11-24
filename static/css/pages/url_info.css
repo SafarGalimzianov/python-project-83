@@ -1,0 +1,118 @@
+/* Update url-info.css */
+.info-card {
+    background: linear-gradient(145deg, #ffffff 0%, #f8fafc 100%);
+}
+
+.header-icon {
+    width: 48px;
+    height: 48px;
+    background: linear-gradient(145deg, var(--primary-color), #1d4ed8);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.header-icon i {
+    color: white;
+    font-size: 20px;
+}
+
+.info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+.info-box {
+    background: white;
+    border-radius: 10px;
+    padding: 1.25rem;
+    box-shadow: var(--shadow-sm);
+    transition: transform 0.2s ease;
+}
+
+.info-box:hover {
+    transform: translateY(-2px);
+}
+
+.info-label {
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+    margin-bottom: 0.5rem;
+    display: flex;
+    align-items: center;
+}
+
+.info-label i {
+    margin-right: 0.5rem;
+    color: var(--primary-color);
+}
+
+.info-value {
+    font-weight: 500;
+    word-break: break-all;
+}
+
+.content-cell {
+    position: relative;
+    cursor: pointer;
+}
+
+.content-preview {
+    position: absolute;
+    bottom: calc(100% + 10px);
+    left: 50%;
+    transform: translateX(-50%);
+    background: white;
+    padding: 0.75rem;
+    border-radius: 8px;
+    box-shadow: var(--shadow-md);
+    min-width: 200px;
+    max-width: 300px;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.2s ease, visibility 0.2s ease;
+    z-index: 100;
+}
+
+.content-cell:hover .content-preview {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* Remove unused styles */
+.timeline, .timeline-item, .url-badge {
+    display: none;
+}
+
+.copy-cell {
+    position: relative;
+    cursor: pointer;
+}
+
+.copy-tooltip {
+    position: absolute;
+    bottom: calc(100% + 5px);
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.2s ease;
+    white-space: nowrap;
+}
+
+.copy-cell:hover .copy-tooltip {
+    opacity: 1;
+    visibility: visible;
+}
+
+.copy-success {
+    background: #10b981 !important;
+}

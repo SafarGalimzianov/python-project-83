@@ -34,18 +34,23 @@ load_dotenv()  # Загрузка переменных окружения из �
 
 # Инстанцирование веб-приложения с именем __name__
 # Таким образом Flask знает, где искать шаблоны и статические файлы
-app = Flask(__name__, template_folder='../templates')  # Flask будет искать шаблоны в папке выше и затем в templates/
+app = Flask(__name__, template_folder='../templates', static_folder='../static')  # Flask будет искать шаблоны в папке выше и затем в templates/
 app.jinja_env.trim_blocks = True  # Удаление пробелов в шаблоне
 app.jinja_env.lstrip_blocks = True  # Удаление пробелов в шаблоне
 app.jinja_env.autoescape = True  # Экранирование HTML-символов
 
 
 # Установка заголовков безопасности
+# In app.py, update the CSP header to include FontAwesome CDN
 @app.after_request
 def add_csp_header(response):
     response.headers['Content-Security-Policy'] = (
+        "default-src 'self'; "
         "script-src 'self' https://cdn.jsdelivr.net; "
-        "style-src 'self' https://cdn.jsdelivr.net;"
+        "style-src 'self' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; "
+        "font-src 'self' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; "
+        "img-src 'self' data: https:; "
+        "connect-src 'self';"
     )
     return response
 
@@ -241,12 +246,16 @@ def get_url(url_id):  # Получение id URL, который совпада
     url_info = repo.get_url_info(url_id)  # Поиск информации о URL по url_id
     if not url_info:  # Если URL не найден в базе данных
         abort(404)  # Вызов ошибки 404
+    url = url_info['url']
+    creation_date = url_info['creation_date']
+
     checks = repo.get_url_checks(url_id)  # Получение информации о проверках URL
     checks.reverse()  # Переворачивание списка проверок для отображения в порядке убывания даты
     return render_template(
         'main/url_info.html',
         url_id=url_id,
-        url_info=url_info,
+        url=url,
+        creation_date=creation_date,
         checks=checks
     )
 

@@ -1,0 +1,218 @@
+@font-face {
+    font-family: 'FontAwesome';
+    font-display: swap;
+  }
+
+/* Base Styles */
+:root {
+    --primary-color: #2563eb;
+    --secondary-color: #64748b;
+    --background-color: #f8fafc;
+    --border-color: #e2e8f0;
+    --text-primary: #1e293b;
+    --text-secondary: #64748b;
+    
+    --spacing-sm: 0.5rem;
+    --spacing-md: 1rem;
+    --spacing-lg: 1.5rem;
+    --spacing-xl: 2rem;
+    
+    --shadow-sm: 0 2px 4px rgba(0,0,0,0.05);
+    --shadow-md: 0 4px 6px rgba(0,0,0,0.1);
+    --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.1);
+}
+
+/* Card Styles */
+.card {
+    border: none !important;
+    border-radius: 12px !important;
+    box-shadow: var(--shadow-md);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lg);
+}
+
+.card-header {
+    background: white !important;
+    border-bottom: 1px solid var(--border-color) !important;
+    border-radius: 12px 12px 0 0 !important;
+    padding: var(--spacing-lg) var(--spacing-xl) !important;
+}
+
+/* Table Styles */
+.table {
+    margin-bottom: 0 !important;
+}
+
+.table th {
+    font-weight: 600;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    font-size: 0.875rem;
+    letter-spacing: 0.025em;
+}
+
+.table td {
+    color: var(--text-primary);
+    vertical-align: middle;
+}
+
+.table-hover tbody tr:hover {
+    background-color: rgba(37, 99, 235, 0.05);
+}
+
+/* Button Styles */
+.btn {
+    font-weight: 500;
+    padding: 0.5rem 1.25rem;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+
+.btn-primary {
+    background-color: var(--primary-color);
+    border: none;
+}
+
+.btn-primary:hover {
+    background-color: #1d4ed8;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 6px rgba(37, 99, 235, 0.2);
+}
+
+/* Alert & Link Styles */
+.alert {
+    border-radius: 10px;
+    border: none;
+    box-shadow: var(--shadow-sm);
+    padding: var(--spacing-md) var(--spacing-lg);
+}
+
+a {
+    color: var(--primary-color);
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+a:hover {
+    color: #1d4ed8;
+}
+
+/* Icons */
+.fas, .fab {
+    transition: transform 0.3s ease;
+}
+
+a:hover .fas,
+a:hover .fab {
+    transform: translateY(-1px);
+}
+
+/* Layout */
+.container {
+    padding-top: var(--spacing-lg);
+    padding-bottom: var(--spacing-lg);
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--background-color);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--secondary-color);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--primary-color);
+}
+/* Optimize paint for off-screen content */
+.footer {
+    content-visibility: auto;
+    contain-intrinsic-size: 0 100px;
+}
+
+.table-responsive {
+    content-visibility: auto;
+    contain-intrinsic-size: 0 500px;
+}
+
+.flash-container {
+    position: fixed;
+    top: 56px; /* Height of navbar */
+    left: 0;
+    right: 0;
+    z-index: 1050;
+    pointer-events: none; /* Allow clicking through container */
+}
+
+.flash-messages {
+    max-width: 1320px; /* Match Bootstrap's container width */
+    margin: 0 auto;
+    padding: 1rem;
+}
+
+.alert {
+    pointer-events: auto; /* Re-enable interactions for alerts */
+    margin-bottom: 0.5rem;
+    animation: slideDown 0.3s ease-out;
+}
+
+@keyframes slideDown {
+    from {
+        transform: translateY(-100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.navbar {
+    background: white;
+    box-shadow: var(--shadow-sm);
+    padding: 0.5rem 0;
+}
+
+main {
+    margin-top: 1rem; /* Add spacing below navbar */
+}
+
+.table th,
+.table td {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 300px; /* Maximum column width */
+}
+
+/* Column width classes */
+.col-id {
+    width: 80px;
+}
+
+.col-date {
+    width: 160px;
+}
+
+.col-code {
+    width: 120px;
+}
+
+.col-actions {
+    width: 140px;
+}
+
+.col-content {
+    min-width: 200px;
+    max-width: 300px;
+}
