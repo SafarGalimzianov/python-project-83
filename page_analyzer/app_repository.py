@@ -8,7 +8,7 @@ class AppRepository:
         self.checks_table = 'checks_table'
         # Создание таблиц
         # Ни одно из полей не может быть NULL,
-        # так как такие случаи предотвращаются в функции make_request() в app.py
+        # Такие случаи предотвращаются в функции make_request() в app.py
         with self.conn.cursor() as cur:
             cur.execute(f'''
                 CREATE TABLE IF NOT EXISTS {self.urls_table}(
@@ -105,16 +105,16 @@ class AppRepository:
                 ORDER BY ul.id ASC
             ''')
             return cur.fetchall()
-        
+
     def get_urls_paginated(self, page: int, per_page: int) -> tuple:
         offset = (page - 1) * per_page
-        
+
         with self.conn.cursor(row_factory=dict_row) as cur:
-            # Get total count
+            # Получение общего числа уникальных URL
             cur.execute(f'SELECT COUNT(*) FROM {self.urls_table}')
             total = cur.fetchone()['count']
-            
-            # Get paginated results
+
+            # Получение URL на страницу
             cur.execute(f'''
                 SELECT
                     ul.id AS id,
@@ -137,7 +137,7 @@ class AppRepository:
                 'limit': per_page,
                 'offset': offset
             })
-            
+
             return cur.fetchall(), total
 
     # Метод получения информации о URL с его последней проверкой

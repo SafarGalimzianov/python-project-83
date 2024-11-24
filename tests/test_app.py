@@ -1,6 +1,4 @@
-import pytest
 from page_analyzer.app import make_request
-from datetime import datetime
 
 
 TEST_URLS = {
@@ -12,13 +10,18 @@ TEST_URLS = {
     1: 'http://localhost:1'
 }
 
-RESPONSES_WITH_FIX = {code: make_request(url) for code, url in TEST_URLS.items()}
-RESPONSES_WITHOUT_FIX = {code: make_request(url, fix=False) for code, url in TEST_URLS.items()}
+RESPONSES_WITH_FIX = {
+    code: make_request(url) for code, url in TEST_URLS.items()
+    }
+RESPONSES_WITHOUT_FIX = {
+    code: make_request(url, fix=False) for code, url in TEST_URLS.items()
+    }
+
 
 def test_make_request_valid_url():
     result = RESPONSES_WITH_FIX[200]
     result_ = RESPONSES_WITHOUT_FIX[200]
-    
+
     assert result == result_
     assert result['url'] == TEST_URLS[200]
     assert result['response_code'] == 200
@@ -27,12 +30,14 @@ def test_make_request_valid_url():
     assert isinstance(result['description'], str)
     assert isinstance(result['check_date'], str)
 
+
 def test_make_request_not_found():
     result = RESPONSES_WITH_FIX[404]
     assert result['response_code'] == 200
-    
+
     result = RESPONSES_WITHOUT_FIX[404]
     assert result['response_code'] == 404
+
 
 def test_make_request_server_error():
     result = RESPONSES_WITH_FIX[500]
@@ -41,6 +46,7 @@ def test_make_request_server_error():
     result = RESPONSES_WITHOUT_FIX[500]
     assert result['response_code'] == 500
 
+
 def test_make_request_rate_limit():
     result = RESPONSES_WITH_FIX[429]
     assert result['response_code'] == 200
@@ -48,10 +54,12 @@ def test_make_request_rate_limit():
     result = RESPONSES_WITHOUT_FIX[429]
     assert result['response_code'] == 429
 
+
 def test_make_request_dns_error():
     result = RESPONSES_WITH_FIX[0]
-    assert result['url'] == False
+    assert result['url'] is False
+
 
 def test_make_request_connection_error():
     result = RESPONSES_WITH_FIX[1]
-    assert result['url'] == False
+    assert result['url'] is False
