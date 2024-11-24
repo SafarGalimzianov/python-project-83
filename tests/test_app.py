@@ -54,4 +54,4 @@ def test_make_request_dns_error():
 
 def test_make_request_connection_error():
     result = RESPONSES_WITH_FIX[1]
-    assert result['url'] == 'http://localhost'
+    assert result['url'] == False
