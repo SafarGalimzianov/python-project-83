@@ -34,6 +34,9 @@ jobs:
           run: poetry install
 
         - name: Run tests
+          env:
+            DATABASE_URL: ${{ secrets.DATABASE_URL }}
+            SECRET_KEY: ${{ secrets.SECRET_KEY }}
           run: |
             poetry run pip install pytest-cov
             poetry run pytest --cov=page_analyzer --cov-report=xml
