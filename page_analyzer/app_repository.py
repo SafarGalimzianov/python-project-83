@@ -9,6 +9,21 @@ class AppRepository:
         # Создание таблиц
         # Ни одно из полей не может быть NULL,
         # Такие случаи предотвращаются в функции make_request() в app.py
+
+        with self.conn.cursor() as cur:
+            cur.execute(f'''
+                DROP TABLE IF EXISTS {self.urls_table};
+                DROP SEQUENCE IF EXISTS check_id_seq;
+                );
+            ''')
+
+        with self.conn.cursor() as cur:
+            cur.execute(f'''
+                DROP TABLE IF EXISTS {self.checks_table};
+                DROP SEQUENCE IF EXISTS check_id_seq;
+                );
+            ''')
+
         with self.conn.cursor() as cur:
             cur.execute(f'''
                 CREATE TABLE IF NOT EXISTS {self.urls_table}(
