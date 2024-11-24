@@ -3,6 +3,7 @@ from psycopg.rows import dict_row
 
 class AppRepository:
     def __init__(self, conn) -> None:
+        self.conn.close()
         self.conn = conn
         self.urls_table = 'urls_table'
         self.checks_table = 'checks_table'
