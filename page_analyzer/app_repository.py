@@ -15,6 +15,8 @@ class AppRepository:
                 DROP TABLE IF EXISTS {self.urls_table} CASCADE;
                 DROP TABLE IF EXISTS {self.checks_table} CASCADE;
                 DROP SEQUENCE IF EXISTS check_id_seq CASCADE;
+                DROP SEQUENCE IF EXISTS {self.urls_table}_id_seq CASCADE;
+                DROP SEQUENCE IF EXISTS {self.checks_table}_id_seq CASCADE; 
             ''')
 
         with self.conn.cursor() as cur:
