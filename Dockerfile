@@ -24,16 +24,12 @@ USER appuser
 # Установка poetry (без root, поэтому только в рамках домашней директории)
 RUN pip install poetry
 
-RUN pip install --upgrade pip
-
-RUN pip install "psycopg[c]"
-
 # Копирование конфигурационных файлов для установки зависимостей
 COPY pyproject.toml poetry.lock ./
 
 # Установка только зависимостей (без установки самого приложения)
 # Это позволяет использовать кэширование слоев Docker, что ускоряет сборку
-RUN poetry install --no-root
+RUN poetry install
 
 # Копирование образа из директории хоста в рабочую директорию /app
 COPY . .
