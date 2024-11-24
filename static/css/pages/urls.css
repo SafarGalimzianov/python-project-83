@@ -33,3 +33,33 @@
     font-size: 0.9rem;
     padding: 0.5em 1em;
 }
+
+.pagination {
+    margin: 0;
+}
+
+.page-link {
+    color: var(--primary-color);
+    border: 1px solid var(--border-color);
+    padding: 0.5rem 0.75rem;
+    margin: 0 0.25rem;
+    border-radius: 6px !important;
+    transition: all 0.3s ease;
+}
+
+.page-link:hover {
+    background-color: var(--primary-color);
+    color: white;
+    border-color: var(--primary-color);
+}
+
+.page-item.active .page-link {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+}
+
+.page-item.disabled .page-link {
+    color: var(--text-secondary);
+    background-color: #f8f9fa;
+    border-color: var(--border-color);
+}

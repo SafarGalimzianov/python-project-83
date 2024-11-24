@@ -93,12 +93,16 @@ def make_request(url: str, fix=True) -> dict:
     if fix:
         fixed_url = validate_and_fix_url(url)  # Проверка URL на доступность и исправление ошибки в URL при недоступности
         if not fixed_url:
-            return {'url': False}  # Возврат False при недоступности URL
+            return {'url': False, 'error': 'The URL is not reachable'}  # Возврат False при недоступности URL
         url = fixed_url
     try:
-        response = requests.get(url)  # Получение ответа
+        response = requests.get(url, timeout=20)  # Получение ответа
     except requests.ConnectionError: # Если не удается получить ответ
-        return {'url': False}  # Возврат False при ошибке соединения
+        return {'url': False, 'error': 'Connection could not be established'}  # Возврат False при ошибке соединения
+    except requests.Timeout: # Если время ожидания ответа истекло
+        return {'url': False, 'error': 'Timeout'} # Возврат описания ошибки
+    except requests.RequestException as e: # Если возникает ошибка при запросе
+        return {'url': False, 'error': str(e)} # Возврат описания ошибки
     response_code = response.status_code  # Получение кода ответа
 
     soup = BeautifulSoup(response.text, 'html.parser')  # Получение остальных данных ответа
@@ -230,9 +234,9 @@ def search():  # Форма поиска, поэтому search
 def add_url():  # Заполнение формы добавляет URL в базу данных, поэтому add_url
     url = request.form.to_dict()['url']  # Получение URL из формы
     url = sanitize_url_input(url)  # Очистка URL от вредоносных элементов
-    url = make_request(url)['url']  # Получение конечного (после исправлений и редиректов) URL из ответа
-    if not url:  # Если URL недоступен
-        flash('URL неверный', 'error')  # Оповещение пользователя об ошибке
+    url_data= make_request(url)  # Получение конечного (после исправлений и редиректов) URL из ответа
+    if not url_data['url']:  # Если URL недоступен
+        flash(f"Нет доступа к URL {url}: {url_data['error']}", 'error')
         return redirect(url_for('search'))  # Возврат на главную страницу
 
     # Если URL доступен, то URl добавляется в базу данных
@@ -271,12 +275,31 @@ def check_url(url_id: int):  # Проверка URL, поэтому check_url
     repo.check_url(data)  # Добавление данных проверки URL в базу данных
     return redirect(url_for('get_url', url_id=url_id))  # Перенаправление на страницу проверенного URL
 
-
+'''
 # Отображение списка URL
 @app.get('/urls')  # Для выводы списка всех добавленных URL используется отдельная страница
 def get_urls():  # Получение списка URL, поэтому get_urls
     urls = repo.get_urls()  # Получение списка URL из базы данных
     return render_template('main/urls.html', urls=urls)  # Отображение списка URL
+'''
+
+@app.get('/urls')
+def get_urls():
+    page = request.args.get('page', 1, type=int)
+    per_page = 10  # URLs per page
+    
+    urls, total = repo.get_urls_paginated(page, per_page)
+    total_pages = (total + per_page - 1) // per_page
+    
+    return render_template(
+        'main/urls.html',
+        urls=urls,
+        current_page=page,
+        total_pages=total_pages,
+        max=max,
+        min=min
+    )
+
 
 # Обработка HTTP ошибок
 @app.errorhandler(400)

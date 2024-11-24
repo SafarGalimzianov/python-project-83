@@ -61,6 +61,56 @@
                         {% endfor %}
                     </tbody>
                 </table>
+                {% if total_pages > 1 %}
+                <nav aria-label="Page navigation" class="d-flex justify-content-center py-3">
+                    <ul class="pagination mb-0">
+                        <!-- Previous page -->
+                        <li class="page-item {% if current_page == 1 %}disabled{% endif %}">
+                            <a class="page-link" href="{{ url_for('get_urls', page=current_page-1) if current_page > 1 else '#' }}" aria-label="Previous">
+                                <span aria-hidden="true">&laquo;</span>
+                            </a>
+                        </li>
+                        
+                        <!-- First page -->
+                        {% if current_page > 2 %}
+                        <li class="page-item">
+                            <a class="page-link" href="{{ url_for('get_urls', page=1) }}">1</a>
+                        </li>
+                        {% if current_page > 3 %}
+                        <li class="page-item disabled">
+                            <span class="page-link">...</span>
+                        </li>
+                        {% endif %}
+                        {% endif %}
+                        
+                        <!-- Current and surrounding pages -->
+                        {% for page in range(max(1, current_page-1), min(total_pages+1, current_page+2)) %}
+                        <li class="page-item {% if page == current_page %}active{% endif %}">
+                            <a class="page-link" href="{{ url_for('get_urls', page=page) }}">{{ page }}</a>
+                        </li>
+                        {% endfor %}
+                        
+                        <!-- Last page -->
+                        {% if current_page < total_pages-1 %}
+                        {% if current_page < total_pages-2 %}
+                        <li class="page-item disabled">
+                            <span class="page-link">...</span>
+                        </li>
+                        {% endif %}
+                        <li class="page-item">
+                            <a class="page-link" href="{{ url_for('get_urls', page=total_pages) }}">{{ total_pages }}</a>
+                        </li>
+                        {% endif %}
+                        
+                        <!-- Next page -->
+                        <li class="page-item {% if current_page == total_pages %}disabled{% endif %}">
+                            <a class="page-link" href="{{ url_for('get_urls', page=current_page+1) if current_page < total_pages else '#' }}" aria-label="Next">
+                                <span aria-hidden="true">&raquo;</span>
+                            </a>
+                        </li>
+                    </ul>
+                </nav>
+                {% endif %}
             </div>
         </div>
     </div>

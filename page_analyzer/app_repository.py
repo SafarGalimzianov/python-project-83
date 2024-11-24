@@ -105,6 +105,40 @@ class AppRepository:
                 ORDER BY ul.id ASC
             ''')
             return cur.fetchall()
+        
+    def get_urls_paginated(self, page: int, per_page: int) -> tuple:
+        offset = (page - 1) * per_page
+        
+        with self.conn.cursor(row_factory=dict_row) as cur:
+            # Get total count
+            cur.execute(f'SELECT COUNT(*) FROM {self.urls_table}')
+            total = cur.fetchone()['count']
+            
+            # Get paginated results
+            cur.execute(f'''
+                SELECT
+                    ul.id AS id,
+                    ul.url AS url,
+                    uc.check_date AS check_date,
+                    uc.response_code AS response_code
+                FROM {self.urls_table} AS ul
+                LEFT JOIN(
+                    SELECT id, url_id, check_date, response_code
+                    FROM {self.checks_table}
+                    WHERE id IN(
+                        SELECT MAX(id)
+                        FROM {self.checks_table}
+                        GROUP BY url_id
+                    )
+                ) AS uc ON ul.id = uc.url_id
+                ORDER BY ul.id DESC
+                LIMIT %(limit)s OFFSET %(offset)s
+            ''', {
+                'limit': per_page,
+                'offset': offset
+            })
+            
+            return cur.fetchall(), total
 
     # Метод получения информации о URL с его последней проверкой
     def get_url_info(self, url_id: int) -> dict:
