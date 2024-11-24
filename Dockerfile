@@ -29,9 +29,7 @@ COPY pyproject.toml poetry.lock ./
 
 # Установка только зависимостей (без установки самого приложения)
 # Это позволяет использовать кэширование слоев Docker, что ускоряет сборку
-RUN poetry install --no-root
-
-RUN pip install "psycopg[binary]"
+RUN poetry install
 
 # Копирование образа из директории хоста в рабочую директорию /app
 COPY . .
