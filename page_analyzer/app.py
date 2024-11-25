@@ -1,7 +1,7 @@
 # Добавление библиотеки os для получения переменных окружения
 import os
 # Добавление библиотеки psycopg для работы с базой данных (app_repository.py)
-import psycopg
+import psycopg2
 # Добавление библиотеки requests для отправки HTTP-запросов (make_request())
 import requests
 # Добавление библиотеки BeautifulSoup для парсинга HTML-кода (make_request())
@@ -66,7 +66,7 @@ app.config['SECRET_KEY'] = os.getenv('SECRET_KEY')
 app.config['DATABASE_URL'] = os.getenv('DATABASE_URL')
 
 
-conn = psycopg.connect(app.config['DATABASE_URL'])  # Соединение с базой данных
+conn = psycopg2.connect(app.config['DATABASE_URL'])  # Соединение с базой данных
 
 repo = AppRepository(conn)  # Инстанцирование класса AppRepository
 
