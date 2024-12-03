@@ -1,5 +1,5 @@
 # Для получения переменных окружения
-import os
+from os import getenv
 # Для работы с базой данных (app_repository.py)
 import psycopg2
 # Для создания веб-приложения
@@ -55,8 +55,8 @@ def add_csp_header(response):
 
 
 # Получение ключа сессии и URL базы данных из переменных окружения
-app.config['SECRET_KEY'] = os.getenv('SECRET_KEY')
-app.config['DATABASE_URL'] = os.getenv('DATABASE_URL')
+app.config['SECRET_KEY'] = getenv('SECRET_KEY')
+app.config['DATABASE_URL'] = getenv('DATABASE_URL')
 
 
 conn = psycopg2.connect(app.config['DATABASE_URL'])  # Соединение с базой данных

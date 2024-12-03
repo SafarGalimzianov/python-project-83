@@ -34,6 +34,9 @@ RUN poetry install
 # Копирование образа из директории хоста в рабочую директорию /app
 COPY . .
 
+# Инициализация базы данных
+RUN poetry run python3 page_analyzer/db_init.py
+
 # Установках переменных среды для запуска приложения при помощи Flask
 ENV FLASK_APP=page_analyzer.app:app
 ENV FLASK_RUN_HOST=0.0.0.0
