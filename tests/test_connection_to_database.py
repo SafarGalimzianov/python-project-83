@@ -1,5 +1,6 @@
 import os
-import psycopg
+import psycopg2
+import psycopg2.errors
 import pytest
 import random
 import string
@@ -24,12 +25,10 @@ def setup_session():
 @pytest.fixture(autouse=True)
 def transaction_rollback(setup_session):
     database_url = os.getenv('DATABASE_URL')
-    conn = psycopg.connect(database_url)
+    conn = psycopg2.connect(database_url)
+    conn.autocommit = False
 
     # Start a transaction
-    with conn.cursor() as cur:
-        cur.execute('BEGIN;')
-
     yield conn
 
     # Rollback the transaction and close connection
@@ -111,19 +110,19 @@ def test_edge_case_urls(repository):
     # Test very long URL (255 characters is max)
     long_domain = 'a' * 245  # Leave room for https:// and .com
     long_url = f"https://{long_domain}.com"
-    with pytest.raises(psycopg.errors.StringDataRightTruncation):
+    with pytest.raises(psycopg2.errors.StringDataRightTruncation):
         url_id = repository.add_url(long_url, date)
     assert url_id is None
 
     # Test URL with non-ASCII characters
     unicode_url = "https://测试.com"
-    with pytest.raises(psycopg.errors.InFailedSqlTransaction):
+    with pytest.raises(psycopg2.errors.InFailedSqlTransaction):
         url_id = repository.add_url(unicode_url, date)
     assert url_id is None
 
     # Test URL with spaces and invalid characters
     invalid_url = "https://exa mple.com/path with spaces"
-    with pytest.raises(psycopg.errors.InFailedSqlTransaction):
+    with pytest.raises(psycopg2.errors.InFailedSqlTransaction):
         repository.add_url(invalid_url, date)
     assert url_id is None
 
@@ -132,10 +131,10 @@ def test_edge_case_dates(repository):
     url = generate_random_url()
 
     # Test invalid date format
-    with pytest.raises(psycopg.errors.InvalidDatetimeFormat):
+    with pytest.raises(psycopg2.errors.InvalidDatetimeFormat):
         repository.add_url(url, "invalid-date")
 
     # Test future date
     future_date = "2099-12-31"
-    with pytest.raises(psycopg.errors.InFailedSqlTransaction):
+    with pytest.raises(psycopg2.errors.InFailedSqlTransaction):
         repository.add_url(url, future_date)
