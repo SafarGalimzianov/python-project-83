@@ -33,6 +33,9 @@ def transaction_rollback(setup_session):
     conn = psycopg2.connect(database_url)
     conn.autocommit = False
 
+    with conn.cursor() as cur:
+        cur.execute('BEGIN;')
+
     # Start a transaction
     yield conn
 
