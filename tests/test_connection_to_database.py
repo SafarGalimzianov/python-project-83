@@ -7,6 +7,11 @@ import string
 from datetime import datetime
 from page_analyzer.app_repository import AppRepository
 
+# Для загрузки переменных окружения из файла .env
+from dotenv import load_dotenv
+
+load_dotenv()
+
 
 def generate_random_url():
     domain = ''.join(random.choices(string.ascii_lowercase, k=10))
