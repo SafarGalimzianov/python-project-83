@@ -1,5 +1,5 @@
-import psycopg2
 from psycopg2.extras import DictCursor
+
 
 class AppRepository:
     def __init__(self, conn) -> None:
@@ -56,7 +56,7 @@ class AppRepository:
                 ORDER BY ul.id DESC
                 LIMIT %s OFFSET %s;
             ''', (per_page, offset))
-            
+
             return [dict(row) for row in cur.fetchall()], total
 
     def get_url_info(self, url_id: int) -> dict:
@@ -94,11 +94,11 @@ class AppRepository:
     def check_url(self, data: dict) -> None:
         with self.conn.cursor(cursor_factory=DictCursor) as cur:
             cur.execute(f'''
-                SELECT id 
+                SELECT id
                 FROM {self.urls_table}
                 WHERE url = %s;
             ''', (data['url'],))
-            
+
             try:
                 url_id = cur.fetchone()['id']
             except TypeError:

@@ -59,7 +59,8 @@ app.config['SECRET_KEY'] = getenv('SECRET_KEY')
 app.config['DATABASE_URL'] = getenv('DATABASE_URL')
 
 
-conn = psycopg2.connect(app.config['DATABASE_URL'])  # Соединение с базой данных
+# Соединение с базой данных
+conn = psycopg2.connect(app.config['DATABASE_URL'])
 
 repo = AppRepository(conn)  # Инстанцирование класса AppRepository
 
