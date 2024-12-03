@@ -45,4 +45,4 @@ ENV FLASK_RUN_HOST=0.0.0.0
 # Render самостоятельно назначает порт (указывается в настройках среды в проекте на Render)
 
 # Запуск приложения
-CMD ["sh", "-c", "poetry run gunicorn --bind=0.0.0.0:$PORT page_analyzer.app:app"]
+CMD ["sh", "-c", "poetry run python3 page_analyzer/db_init.py && poetry run gunicorn --bind=0.0.0.0:$PORT page_analyzer.app:app"]
