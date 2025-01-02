@@ -1,4 +1,4 @@
-PORT ?=8000
+PORT ?=10000
 
 i:
 	poetry install
