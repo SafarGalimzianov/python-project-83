@@ -41,5 +41,6 @@ ENV FLASK_RUN_HOST=0.0.0.0
 # Порт не устанавливается, так как используется Render
 # Render самостоятельно назначает порт (указывается в настройках среды в проекте на Render)
 
+# Подключение к БД с загрузкой настроек (таблицы, индексы и прочее)
 # Запуск приложения
-CMD ["sh", "-c", "poetry run python3 page_analyzer/db_init.py && poetry run gunicorn --bind=0.0.0.0:$PORT page_analyzer.app:app"]
+CMD ["sh", "-c", "psql -a -d $DATABASE_URL -f database.sql && poetry run gunicorn --bind=0.0.0.0:$PORT page_analyzer.app:app"]
