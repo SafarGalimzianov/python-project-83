@@ -20,13 +20,13 @@ CREATE TABLE IF NOT EXISTS url_checks(
 );
 
 CREATE INDEX IF NOT EXISTS idx_urls_table_url 
-ON urls_table(url);
+ON urls(url);
 
 CREATE INDEX IF NOT EXISTS idx_checks_table_id 
-ON checks_table(url_id);
+ON url_checks(url_id);
 
 CREATE INDEX IF NOT EXISTS idx_checks_table_check_date 
-ON checks_table(check_date);
+ON url_checks(check_date);
 
 
 CREATE SEQUENCE IF NOT EXISTS check_id_seq START 1;
@@ -37,7 +37,7 @@ RETURNS TRIGGER AS $$
 BEGIN
     NEW.check_id := COALESCE(
         (SELECT MAX(check_id) + 1
-        FROM checks_table
+        FROM url_checks
         WHERE url_id = NEW.url_id),
         1
     );
@@ -53,7 +53,7 @@ BEGIN
         WHERE tgname = 'before_insert_check_id'
     ) THEN
         CREATE TRIGGER before_insert_check_id
-        BEFORE INSERT ON checks_table
+        BEFORE INSERT ON url_checks
         FOR EACH ROW
         EXECUTE FUNCTION set_check_id();
     END IF;
