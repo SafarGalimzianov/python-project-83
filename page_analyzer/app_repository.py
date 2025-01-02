@@ -32,11 +32,9 @@ class AppRepository:
     def get_urls_paginated(self, page: int, per_page: int) -> tuple:
         offset = (page - 1) * per_page
         with self.conn.cursor(cursor_factory=DictCursor) as cur:
-            # Get total count
             cur.execute(f'SELECT COUNT(*) FROM {self.urls_table}')
             total = cur.fetchone()[0]
 
-            # Get paginated URLs
             cur.execute(f'''
                 SELECT
                     ul.id AS id,

@@ -16,7 +16,7 @@ ENV PATH="$PATH:/home/appuser/.local/bin"
 
 # Update the package list and install make gcc and libpq-dev (for postgresql) and remove the package list (cached files created by apt-get update)
 # apt-get лучше справляется со скриптами и автоматическими установками, чем apt
-RUN apt-get update && apt-get install -yq make build-essential gcc libpq-dev && apt-get clean && rm -rf /var/lib/apt/lists/*
+RUN apt-get update && apt-get install -yq make build-essential gcc libpq-dev postgresql-client && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Переключение с root на обычного пользователя
 USER appuser
