@@ -14,7 +14,7 @@ WORKDIR /app
 # Добавление пути к исполняемым файлам в переменную окружения PATH
 ENV PATH="$PATH:/home/appuser/.local/bin"
 
-# Update the package list and install make gcc and libpq-dev (for postgresql) and remove the package list (cached files created by apt-get update)
+# Обновление пакетов, затем установка  make gcc, libpq-dev и postgresql-clien для postgresql. Удаление кэша, созданного apt-get uodate
 # apt-get лучше справляется со скриптами и автоматическими установками, чем apt
 RUN apt-get update && apt-get install -yq make build-essential gcc libpq-dev postgresql-client && apt-get clean && rm -rf /var/lib/apt/lists/*
 
@@ -29,7 +29,7 @@ COPY pyproject.toml poetry.lock ./
 
 # Установка только зависимостей (без установки самого приложения)
 # Это позволяет использовать кэширование слоев Docker, что ускоряет сборку
-RUN poetry install
+RUN poetry install --no-root
 
 # Копирование образа из директории хоста в рабочую директорию /app
 COPY . .
