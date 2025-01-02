@@ -4,8 +4,8 @@ from psycopg2.extras import DictCursor
 class AppRepository:
     def __init__(self, conn) -> None:
         self.conn = conn
-        self.urls_table = 'urls_table'
-        self.checks_table = 'checks_table'
+        self.urls_table = 'urls'
+        self.checks_table = 'url_checks'
 
     def get_urls(self):
         with self.conn.cursor(cursor_factory=DictCursor) as cur:
