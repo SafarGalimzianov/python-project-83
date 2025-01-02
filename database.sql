@@ -10,7 +10,7 @@ CREATE TABLE IF NOT EXISTS urls(
 
 CREATE TABLE IF NOT EXISTS url_checks(
     id SERIAL PRIMARY KEY,
-    url_id INTEGER REFERENCES urls_table(id) NOT NULL,
+    url_id INTEGER REFERENCES urls(id) NOT NULL,
     check_id INTEGER NOT NULL,
     response_code INTEGER NOT NULL,
     h1_content TEXT NOT NULL,
