@@ -77,7 +77,7 @@ def search():  # Форма поиска, поэтому search
 # Добавление URL
 @app.post('/')  # Форма поиска находится на главной странице
 def add_url():
-    url = request.form.to_dict()['name']  # Получение URL из формы
+    url = request.form.to_dict()['url']  # Получение URL из формы
     url = sanitize_url_input(url)  # Очистка URL от вредоносных элементов
     url_data = make_request(url)  # Получение ответа по URL из ответа
     if not url_data['name']:  # Если произошла ощибка при запросе
