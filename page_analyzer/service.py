@@ -158,9 +158,10 @@ def _is_reachable(url: str) -> bool:
         301,  # Перенаправление
         302,  # Перенаправление
     ]
+    timeout_ = 20
     try:
         # Получение ответа
-        response = requests.get(url, timeout=20, allow_redirects=True)
+        response = requests.get(url, timeout=timeout_, allow_redirects=True)
         # При успешном ответе возвращается True
         return response.status_code in valid_responses
     except requests.RequestException:  # Если возкает ошибка при запросе

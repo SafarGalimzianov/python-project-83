@@ -21,7 +21,7 @@ def generate_random_url():
 @pytest.fixture(scope='session')
 def setup_session():
     if not os.getenv('DATABASE_URL'):
-        pytest.skip("DATABASE_URL environment variable not set")
+        raise psycopg2.errors.UndefinedObject("DATABASE_URL environment variable not set")
     return True
 
 
@@ -102,7 +102,7 @@ def test_edge_case_urls(repository):
     assert url_info['url'] == special_url
 
     url_id = None
-    long_domain = 'a' * 245
+    long_domain = 'a' * 243
     long_url = f"https://{long_domain}.com"
     with pytest.raises(psycopg2.errors.StringDataRightTruncation):
         url_id = repository.add_url(long_url, date)
