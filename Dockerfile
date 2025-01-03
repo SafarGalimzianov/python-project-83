@@ -43,4 +43,4 @@ ENV FLASK_RUN_HOST=0.0.0.0
 
 # Подключение к БД с загрузкой настроек (таблицы, индексы и прочее)
 # Запуск приложения
-CMD ["sh", "-c", "psql -a -d $DATABASE_URL -f database.sql && poetry run gunicorn --timeout 60 -w 5 --bind=0.0.0.0:$PORT page_analyzer.app:app"]
+CMD ["sh", "-c", "psql -a -d $DATABASE_URL -f database.sql && poetry run gunicorn --timeout 60 -w 5 -b 0.0.0.0:$PORT page_analyzer.app:app"]
