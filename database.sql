@@ -36,7 +36,7 @@ CREATE OR REPLACE FUNCTION set_check_id()
 RETURNS TRIGGER AS $$
 BEGIN
     NEW.check_id := COALESCE(
-        (SELECT MAX(created_at) + 1
+        (SELECT MAX(check_id) + 1
         FROM url_checks
         WHERE url_id = NEW.url_id),
         1

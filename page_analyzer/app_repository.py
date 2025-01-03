@@ -12,9 +12,9 @@ class AppRepository:
             cur.execute(f'''
                 SELECT
                     ul.id AS id,
-                    ul.name AS url,
-                    uc.created_at AS check_date,
-                    uc.response AS response_code
+                    ul.name AS name,
+                    uc.created_at AS created_at,
+                    uc.status_code AS status_code
                 FROM {self.urls_table} AS ul
                 LEFT JOIN (
                     SELECT id, url_id, created_at, status_code
@@ -38,9 +38,9 @@ class AppRepository:
             cur.execute(f'''
                 SELECT
                     ul.id AS id,
-                    ul.url AS url,
-                    uc.created_at AS check_date,
-                    uc.status_code AS response_code
+                    ul.name AS url,
+                    uc.created_at AS created_at,
+                    uc.status_code AS status_code
                 FROM {self.urls_table} AS ul
                 LEFT JOIN (
                     SELECT id, url_id, created_at, status_code
@@ -60,7 +60,7 @@ class AppRepository:
     def get_url_info(self, url_id: int) -> dict:
         with self.conn.cursor(cursor_factory=DictCursor) as cur:
             cur.execute(f'''
-                SELECT url, created_at
+                SELECT name, created_at
                 FROM {self.urls_table}
                 WHERE id = %s;
             ''', (url_id,))
@@ -71,10 +71,11 @@ class AppRepository:
         with self.conn.cursor(cursor_factory=DictCursor) as cur:
             cur.execute(f'''
                 SELECT
-                    id, created_at, status_code, h1,
+                    check_id, status_code, h1,
                     title, description, created_at
                 FROM {self.checks_table}
-                WHERE url_id = %s;
+                WHERE url_id = %s
+                ORDER BY id DESC;
             ''', (url_id,))
             return [dict(row) for row in cur.fetchall()]
 
@@ -94,7 +95,7 @@ class AppRepository:
                 SELECT id
                 FROM {self.urls_table}
                 WHERE name = %s;
-            ''', (data['url'],))
+            ''', (data['name'],))
 
             try:
                 url_id = cur.fetchone()['id']
@@ -108,11 +109,11 @@ class AppRepository:
                 ) VALUES (%s, %s, %s, %s, %s, %s);
             ''', (
                 url_id,
-                data['response_code'],
+                data['status_code'],
                 data['h1'],
                 data['title'],
                 data['description'],
-                data['check_date']
+                data['created_at']
             ))
         self.conn.commit()
 

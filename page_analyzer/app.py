@@ -77,17 +77,15 @@ def search():  # Форма поиска, поэтому search
 # Добавление URL
 @app.post('/')  # Форма поиска находится на главной странице
 def add_url():
-    url = request.form.to_dict()['url']  # Получение URL из формы
+    url = request.form.to_dict()['name']  # Получение URL из формы
     url = sanitize_url_input(url)  # Очистка URL от вредоносных элементов
     url_data = make_request(url)  # Получение ответа по URL из ответа
-    if not url_data['url']:  # Если произошла ощибка при запросе
+    if not url_data['name']:  # Если произошла ощибка при запросе
         flash(f"Нет доступа к URL {url}: {url_data['error']}", 'error')
         return redirect(url_for('search'))  # Возврат на главную страницу
 
     # Если URL доступен, то URl добавляется в базу данных
-    url = url_data['url']
-    check_date = url_data['check_date']
-    url_id = repo.add_url(url, check_date)['id']
+    url_id = repo.add_url(url_data['name'], url_data['created_at'])['id']
     # Редирект на страницу с информацией об URL
     return redirect(url_for('get_url', url_id=url_id))
 
@@ -100,17 +98,13 @@ def get_url(url_id):
     url_info = repo.get_url_info(url_id)  # Поиск информации о URL по url_id
     if not url_info:  # Если URL не найден в базе данных
         abort(404)  # Вызов ошибки 404
-    url = url_info['url']
-    creation_date = url_info['creation_date']
     # Получение информации о проверках URL
     checks = repo.get_url_checks(url_id)
-    # Переворачивание списка проверок для отображения в порядке убывания даты
-    checks.reverse()
     return render_template(
         'main/url_info.html',
         url_id=url_id,
-        url=url,
-        creation_date=creation_date,
+        name=url_info['name'],
+        created_at=url_info['created_at'],
         checks=checks
     )
 
@@ -119,7 +113,7 @@ def get_url(url_id):
 @app.post('/url/<int:url_id>')
 def check_url(url_id: int):
     # Получение информации о URL по url_id
-    url = repo.get_url_address(url_id)['url']
+    url = repo.get_url_address(url_id)['name']
     # Если прошедший при добавлении в базу данных URL больше не доступен
     if not url:
         flash('URL больше не доступен', 'error')

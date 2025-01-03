@@ -35,13 +35,13 @@
                     <th class="bg-light">
                         <i class="fas fa-link text-primary me-2"></i>URL
                     </th>
-                    <td>{{ url }}</td>
+                    <td>{{ name }}</td>
                 </tr>
                 <tr>
                     <th class="bg-light">
                         <i class="fas fa-calendar text-primary me-2"></i>Дата создания
                     </th>
-                    <td>{{ creation_date }}</td>
+                    <td>{{ created_at }}</td>
                 </tr>
             </tbody>
         </table>
@@ -69,20 +69,20 @@
                     <tr>
                         <td class="px-4 py-3">{{ check['check_id'] }}</td>
                         <td class="px-4 py-3">
-                            <span class="badge bg-{{ 'success' if check['response_code'] == 200 else 'warning' }}">
-                                {{ check['response_code'] }}
+                            <span class="badge bg-{{ 'success' if check['status_code'] == 200 else 'warning' }}">
+                                {{ check['status_code'] }}
                             </span>
                         </td>
                         <td class="px-4 py-3 content-cell">
-                            <div class="content-preview">{{ check['h1_content'] }}</div>
+                            <div class="content-preview">{{ check['h1'] }}</div>
                         </td>
                         <td class="px-4 py-3 content-cell">
-                            <div class="content-preview">{{ check['title_content'] }}</div>
+                            <div class="content-preview">{{ check['title'] }}</div>
                         </td>
                         <td class="px-4 py-3 content-cell">
-                            <div class="content-preview">{{ check['description_content'] }}</div>
+                            <div class="content-preview">{{ check['description'] }}</div>
                         </td>
-                        <td class="px-4 py-3">{{ check['check_date'] }}</td>
+                        <td class="px-4 py-3">{{ check['created_at'] }}</td>
                     </tr>
                     {% endfor %}
                 </tbody>

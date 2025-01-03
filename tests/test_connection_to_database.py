@@ -50,18 +50,18 @@ def test_add_and_get_url(repository):
     date = datetime.now().strftime('%Y-%m-%d')
 
     url_info = repository.get_urls()
-    assert not any(info['url'] == url for info in url_info)
+    assert not any(info['name'] == url for info in url_info)
 
     url_id = repository.add_url(url, date)
     assert url_id is not None
 
     url_info = repository.get_url_info(url_id['id'])
-    assert url_info['url'] == url
-    assert url_info['creation_date'].strftime('%Y-%m-%d') == date
+    assert url_info['name'] == url
+    assert url_info['created_at'].strftime('%Y-%m-%d') == date
 
     modified_url = url.replace('https://', 'http://')
     assert not \
-        any(info['url'] == modified_url for info in repository.get_urls())
+        any(info['name'] == modified_url for info in repository.get_urls())
 
 
 def test_url_checks(repository):
@@ -69,25 +69,25 @@ def test_url_checks(repository):
     date = datetime.now().strftime('%Y-%m-%d')
 
     url_info = repository.get_urls()
-    assert not any(info['url'] == url for info in url_info)
+    assert not any(info['name'] == url for info in url_info)
 
     url_id = repository.add_url(url, date)
 
     check_data = {
-        'url': url,
-        'response_code': 200,
+        'name': url,
+        'status_code': 200,
         'h1': 'Test H1',
         'title': 'Test Title',
         'description': 'Test Description',
-        'check_date': date
+        'created_at': date
     }
 
     repository.check_url(check_data)
 
     checks = repository.get_url_checks(url_id['id'])
     assert len(checks) == 1
-    assert checks[0]['response_code'] == 200
-    assert checks[0]['h1_content'] == 'Test H1'
+    assert checks[0]['status_code'] == 200
+    assert checks[0]['h1'] == 'Test H1'
 
 
 def test_edge_case_urls(repository):
@@ -99,7 +99,7 @@ def test_edge_case_urls(repository):
     url_id = repository.add_url(special_url, date)
     assert url_id is not None
     url_info = repository.get_url_info(url_id['id'])
-    assert url_info['url'] == special_url
+    assert url_info['name'] == special_url
 
     url_id = None
     long_domain = 'a' * 255 # Поле в БД ограничено 255 символами

@@ -44,16 +44,16 @@ def make_request(url: str, fix=True) -> dict:
         # Проверка и исправление URL при недоступности
         fixed_url = validate_and_fix_url(url)
         if not fixed_url:
-            return {'url': False, 'error': 'The URL is not reachable'}
+            return {'name': False, 'error': 'The URL is not reachable'}
         url = fixed_url
     try:
         response = requests.get(url, timeout=20)  # Получение ответа
     except requests.ConnectionError:  # Если не удается получить ответ
-        return {'url': False, 'error': 'Connection could not be established'}
+        return {'name': False, 'error': 'Connection could not be established'}
     except requests.Timeout:  # Если время ожидания ответа истекло
-        return {'url': False, 'error': 'Timeout'}  # Возврат описания ошибки
+        return {'name': False, 'error': 'Timeout'}  # Возврат описания ошибки
     except requests.RequestException as e:  # Если возникает ошибка при запросе
-        return {'url': False, 'error': str(e)}  # Возврат описания ошибки
+        return {'name': False, 'error': str(e)}  # Возврат описания ошибки
     response_code = response.status_code  # Получение кода ответа
 
     # Получение остальных данных ответа
@@ -79,12 +79,12 @@ def make_request(url: str, fix=True) -> dict:
     # Ни одно из значений не будет None,
     # поэтому проверки на добавление NULL значений в базу данных не требуется
     return {
-        'url': url,
-        'response_code': response_code,
+        'name': url,
+        'status_code': response_code,
         'h1': h1_content,
         'title': title_content,
         'description': description_content,
-        'check_date': check_date
+        'created_at': check_date
     }
 
 
@@ -166,6 +166,8 @@ def _is_reachable(url: str) -> bool:
         return response.status_code in valid_responses
     except requests.RequestException:  # Если возкает ошибка при запросе
         return False  # При ошибке возвращается False
+    except requests.Timeout:
+        return False  # При превышении времени ожидания возвращается 'Timeout'
 
 
 # Получение URL в виде строки и возвращение домена
