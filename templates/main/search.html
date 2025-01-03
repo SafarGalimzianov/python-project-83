@@ -23,21 +23,30 @@
                         <form action="{{ url_for('search') }}" method="post">
                             <div class="search-input-wrapper">
                                 <div class="input-group">
-                                    <span class="input-group-text">
-                                        <i class="fas fa-link"></i>
-                                    </span>
+                                    <label>URL
                                     <input type="url" 
                                         class="form-control form-control-lg"
                                         name="url" 
                                         value="{{ search|e }}"
                                         placeholder="https://example.com"
                                         required>
-                                    <button type="submit" class="btn btn-primary btn-lg px-4">
-                                        <i class="fas fa-search me-2"></i>
+                                    </label>
+                                    <input type="submit" value="Create" class="btn btn-primary btn-lg px-4">
                                         Поиск
                                     </button>
                                 </div>
                             </div>
+                        </form>
+                        <form action="{{ url_for('search') }}" method="post">
+                            <div>
+                                <label>URL
+                                  <input type="url" name="url" value="">
+                                </label>
+                            </div>
+                            <input type="submit" value="Create" class="btn btn-primary">
+                        </form>
+                        <form action="{{ url_for('get_urls') }}" method="get">
+                           <button type="submit" class="btn btn-secondary">Show urls</button>
                         </form>
                     </div>
                 </div>
