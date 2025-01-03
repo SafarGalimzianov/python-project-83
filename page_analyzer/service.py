@@ -39,21 +39,28 @@ def format_date(date: str) -> str:  # Форматирование даты
 
 # Запрос к странице по URL вида https://www.example.com
 # Получение URL в виде строки и возвращение данных ответа в виде словаря
+session = requests.Session()
+
 def make_request(url: str, fix=True) -> dict:
+    if fix:
+        pass
+    '''
     if fix:
         # Проверка и исправление URL при недоступности
         fixed_url = validate_and_fix_url(url)
         if not fixed_url:
             return {'name': False, 'error': 'The URL is not reachable'}
         url = fixed_url
+    '''
     try:
-        response = requests.get(url, timeout=20)  # Получение ответа
+        response = session.get(url, timeout=5)  # Получение ответа
     except requests.ConnectionError:  # Если не удается получить ответ
         return {'name': False, 'error': 'Connection could not be established'}
     except requests.Timeout:  # Если время ожидания ответа истекло
         return {'name': False, 'error': 'Timeout'}  # Возврат описания ошибки
     except requests.RequestException as e:  # Если возникает ошибка при запросе
         return {'name': False, 'error': str(e)}  # Возврат описания ошибки
+
     response_code = response.status_code  # Получение кода ответа
 
     # Получение остальных данных ответа

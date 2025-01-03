@@ -7,14 +7,17 @@
     <p>Введите URL для получения информации</p>
 
     <form action="{{ url_for('search') }}" method="post">
-        <label>URL:
-            <input type="url" 
-                name="url" 
-                value="{{ search|e }}"
-                placeholder="https://example.com"
-                required>
-        </label>
-        <input type="submit" value="Search">
+        <label for="url-input">URL:</label>
+        <input id="url-input"
+               type="url" 
+               name="url"
+               value="{{ search|e }}"
+               placeholder="https://example.com"
+               required>
+        <input type="submit" 
+               value="Search"
+               data-test="submit-button">
+    </form>
     </form>
 </div>
 {% endblock %}
