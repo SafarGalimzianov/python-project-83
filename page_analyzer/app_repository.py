@@ -12,7 +12,7 @@ class AppRepository:
             cur.execute(f'''
                 SELECT
                     ul.id AS id,
-                    ul.name AS name,
+                    ul.url AS name,
                     uc.created_at AS created_at,
                     uc.status_code AS status_code
                 FROM {self.urls_table} AS ul
@@ -38,7 +38,7 @@ class AppRepository:
             cur.execute(f'''
                 SELECT
                     ul.id AS id,
-                    ul.name AS url,
+                    ul.url AS url,
                     uc.created_at AS created_at,
                     uc.status_code AS status_code
                 FROM {self.urls_table} AS ul
@@ -60,7 +60,7 @@ class AppRepository:
     def get_url_info(self, url_id: int) -> dict:
         with self.conn.cursor(cursor_factory=DictCursor) as cur:
             cur.execute(f'''
-                SELECT name, created_at
+                SELECT url AS name, created_at
                 FROM {self.urls_table}
                 WHERE id = %s;
             ''', (url_id,))
@@ -82,7 +82,7 @@ class AppRepository:
     def get_url_address(self, url_id: int) -> dict:
         with self.conn.cursor(cursor_factory=DictCursor) as cur:
             cur.execute(f'''
-                SELECT name
+                SELECT url AS name
                 FROM {self.urls_table}
                 WHERE id = %s;
             ''', (url_id,))
@@ -94,7 +94,7 @@ class AppRepository:
             cur.execute(f'''
                 SELECT id
                 FROM {self.urls_table}
-                WHERE name = %s;
+                WHERE url = %s;
             ''', (data['name'],))
 
             try:
@@ -117,9 +117,9 @@ class AppRepository:
             ))
         self.conn.commit()
 
-    def add_url(self, url: str, creation_date: str) -> dict:
+    def add_url(self, name: str, creation_date: str) -> dict:
         with self.conn.cursor(cursor_factory=DictCursor) as cur:
-            if not isinstance(url, str):
+            if not isinstance(name, str):
                 raise TypeError("URL must be a string")
             if not isinstance(creation_date, str):
                 raise TypeError("Creation date must be a string")
@@ -127,18 +127,18 @@ class AppRepository:
             cur.execute(f'''
                 SELECT id
                 FROM {self.urls_table}
-                WHERE name = %s;
-            ''', (url,))
+                WHERE url = %s;
+            ''', (name,))
             result = cur.fetchone()
 
             if result:
                 url_id = dict(result)
             else:
                 cur.execute(f'''
-                    INSERT INTO {self.urls_table}(name, created_at)
+                    INSERT INTO {self.urls_table}(url, created_at)
                     VALUES (%s, %s)
                     RETURNING id;
-                ''', (url, creation_date))
+                ''', (name, creation_date))
                 url_id = dict(cur.fetchone())
 
         self.conn.commit()

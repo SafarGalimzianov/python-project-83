@@ -4,7 +4,7 @@ DROP TABLE IF EXISTS url_checks CASCADE;
 
 CREATE TABLE IF NOT EXISTS urls(
     id SERIAL PRIMARY KEY,
-    name VARCHAR(255) NOT NULL,
+    url VARCHAR(255) NOT NULL,
     created_at DATE NOT NULL
 );
 

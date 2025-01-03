@@ -39,3 +39,6 @@ reinstall:
 
 build:
 	./build.sh
+
+db:
+	psql -a -d postgresql://hexlet_third_project_database_stlg_user:GK13mlAwcH7ZX9VzORGTyJyiJ3G4H5cr@dpg-ctrbc5q3esus73bb8b90-a.oregon-postgres.render.com/hexlet_third_project_database_stlg -f database.sql
