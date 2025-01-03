@@ -102,7 +102,7 @@ def test_edge_case_urls(repository):
     assert url_info['url'] == special_url
 
     url_id = None
-    long_domain = 'a' * 243
+    long_domain = 'a' * 255 # Поле в БД ограничено 255 символами
     long_url = f"https://{long_domain}.com"
     with pytest.raises(psycopg2.errors.StringDataRightTruncation):
         url_id = repository.add_url(long_url, date)

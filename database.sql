@@ -4,29 +4,29 @@ DROP TABLE IF EXISTS url_checks CASCADE;
 
 CREATE TABLE IF NOT EXISTS urls(
     id SERIAL PRIMARY KEY,
-    url VARCHAR(255) NOT NULL,
-    creation_date DATE NOT NULL
+    name VARCHAR(255) NOT NULL,
+    created_at DATE NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS url_checks(
     id SERIAL PRIMARY KEY,
     url_id INTEGER REFERENCES urls(id) NOT NULL,
     check_id INTEGER NOT NULL,
-    response_code INTEGER NOT NULL,
-    h1_content TEXT NOT NULL,
-    title_content TEXT NOT NULL, 
-    description_content TEXT NOT NULL,
-    check_date DATE NOT NULL
+    status_code INTEGER NOT NULL,
+    h1 VARCHAR(255) NOT NULL,
+    title VARCHAR(255) NOT NULL, 
+    description TEXT NOT NULL,
+    created_at DATE NOT NULL
 );
 
 CREATE INDEX IF NOT EXISTS idx_urls_table_url 
 ON urls(url);
 
-CREATE INDEX IF NOT EXISTS idx_checks_table_id 
+CREATE INDEX IF NOT EXISTS idx_url_checks_table_id 
 ON url_checks(url_id);
 
-CREATE INDEX IF NOT EXISTS idx_checks_table_check_date 
-ON url_checks(check_date);
+CREATE INDEX IF NOT EXISTS idx_url_checks_table_check_date 
+ON url_checks(created_at);
 
 
 CREATE SEQUENCE IF NOT EXISTS check_id_seq START 1;
@@ -36,7 +36,7 @@ CREATE OR REPLACE FUNCTION set_check_id()
 RETURNS TRIGGER AS $$
 BEGIN
     NEW.check_id := COALESCE(
-        (SELECT MAX(check_id) + 1
+        (SELECT MAX(created_at) + 1
         FROM url_checks
         WHERE url_id = NEW.url_id),
         1

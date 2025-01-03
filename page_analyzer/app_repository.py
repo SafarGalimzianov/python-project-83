@@ -12,12 +12,12 @@ class AppRepository:
             cur.execute(f'''
                 SELECT
                     ul.id AS id,
-                    ul.url AS url,
-                    uc.check_date AS check_date,
-                    uc.response_code AS response_code
+                    ul.name AS url,
+                    uc.created_at AS check_date,
+                    uc.response AS response_code
                 FROM {self.urls_table} AS ul
                 LEFT JOIN (
-                    SELECT id, url_id, check_date, response_code
+                    SELECT id, url_id, created_at, status_code
                     FROM {self.checks_table}
                     WHERE id IN (
                         SELECT MAX(id)
@@ -39,11 +39,11 @@ class AppRepository:
                 SELECT
                     ul.id AS id,
                     ul.url AS url,
-                    uc.check_date AS check_date,
-                    uc.response_code AS response_code
+                    uc.created_at AS check_date,
+                    uc.status_code AS response_code
                 FROM {self.urls_table} AS ul
                 LEFT JOIN (
-                    SELECT id, url_id, check_date, response_code
+                    SELECT id, url_id, created_at, status_code
                     FROM {self.checks_table}
                     WHERE id IN (
                         SELECT MAX(id)
@@ -60,7 +60,7 @@ class AppRepository:
     def get_url_info(self, url_id: int) -> dict:
         with self.conn.cursor(cursor_factory=DictCursor) as cur:
             cur.execute(f'''
-                SELECT url, creation_date
+                SELECT url, created_at
                 FROM {self.urls_table}
                 WHERE id = %s;
             ''', (url_id,))
@@ -71,9 +71,8 @@ class AppRepository:
         with self.conn.cursor(cursor_factory=DictCursor) as cur:
             cur.execute(f'''
                 SELECT
-                    id, check_id, response_code,
-                    h1_content, title_content,
-                    description_content, check_date
+                    id, created_at, status_code, h1,
+                    title, description, created_at
                 FROM {self.checks_table}
                 WHERE url_id = %s;
             ''', (url_id,))
@@ -82,7 +81,7 @@ class AppRepository:
     def get_url_address(self, url_id: int) -> dict:
         with self.conn.cursor(cursor_factory=DictCursor) as cur:
             cur.execute(f'''
-                SELECT url
+                SELECT name
                 FROM {self.urls_table}
                 WHERE id = %s;
             ''', (url_id,))
@@ -94,7 +93,7 @@ class AppRepository:
             cur.execute(f'''
                 SELECT id
                 FROM {self.urls_table}
-                WHERE url = %s;
+                WHERE name = %s;
             ''', (data['url'],))
 
             try:
@@ -104,8 +103,8 @@ class AppRepository:
 
             cur.execute(f'''
                 INSERT INTO {self.checks_table}(
-                    url_id, response_code, h1_content,
-                    title_content, description_content, check_date
+                    url_id, status_code, h1,
+                    title, description, created_at
                 ) VALUES (%s, %s, %s, %s, %s, %s);
             ''', (
                 url_id,
@@ -127,7 +126,7 @@ class AppRepository:
             cur.execute(f'''
                 SELECT id
                 FROM {self.urls_table}
-                WHERE url = %s;
+                WHERE name = %s;
             ''', (url,))
             result = cur.fetchone()
 
@@ -135,7 +134,7 @@ class AppRepository:
                 url_id = dict(result)
             else:
                 cur.execute(f'''
-                    INSERT INTO {self.urls_table}(url, creation_date)
+                    INSERT INTO {self.urls_table}(name, created_at)
                     VALUES (%s, %s)
                     RETURNING id;
                 ''', (url, creation_date))
