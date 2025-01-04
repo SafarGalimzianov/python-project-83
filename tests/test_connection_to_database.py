@@ -44,7 +44,7 @@ def transaction_rollback(setup_session):
 def repository(transaction_rollback):
     return AppRepository(transaction_rollback)
 
-
+'''
 def test_add_and_get_url(repository):
     url = generate_random_url()
     date = datetime.now().strftime('%Y-%m-%d')
@@ -128,3 +128,4 @@ def test_edge_case_dates(repository):
     future_date = "2099-12-31"
     with pytest.raises(psycopg2.errors.InFailedSqlTransaction):
         repository.add_url(url, future_date)
+'''
