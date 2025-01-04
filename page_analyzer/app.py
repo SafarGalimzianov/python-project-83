@@ -103,7 +103,7 @@ def get_url(url_id):
         abort(404)  # Вызов ошибки 404
     # Получение информации о проверках URL
     checks = repo.get_url_checks(url_id)
-    messages = get_flashed_messages(with_categories=True)  # Получение flash сообщений
+    messages = get_flashed_messages(with_categories=True)
     return render_template(
         'main/url_info.html',
         url_id=url_id,
@@ -138,7 +138,7 @@ def get_urls():
     urls, total = repo.get_urls_paginated(page, per_page)
     total_pages = (total + per_page - 1) // per_page
 
-    messages = get_flashed_messages(with_categories=True)  # Получение flash сообщений
+    messages = get_flashed_messages(with_categories=True)
 
     return render_template(
         'main/urls.html',
