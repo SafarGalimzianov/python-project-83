@@ -82,6 +82,7 @@ def add_url():
     url_data = make_request(url)  # Получение ответа по URL из ответа
     if not url_data['name']:  # Если произошла ощибка при запросе
         flash(f"Нет доступа к URL {url}: {url_data['error']}", 'error')
+        abort(422)
         return redirect(url_for('search'))  # Возврат на главную страницу
 
     # Если URL доступен, то URl добавляется в базу данных
