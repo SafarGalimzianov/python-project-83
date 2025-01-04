@@ -143,3 +143,15 @@ class AppRepository:
 
         self.conn.commit()
         return url_id
+    
+    def in_db(self, name: str) -> bool:
+        with self.conn.cursor(cursor_factory=DictCursor) as cur:
+            cur.execute(f'''
+                SELECT id
+                FROM {self.urls_table}
+                WHERE url = %s;
+            ''', (name,))
+            result = cur.fetchone()
+            if result:
+                return True
+            return False

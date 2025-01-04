@@ -85,6 +85,8 @@ def add_url():
         return redirect(url_for('search'))  # Возврат на главную страницу
 
     # Если URL доступен, то URl добавляется в базу данных
+    if repo.in_db(url):
+        flash('Страница уже существует', 'info')
     url_id = repo.add_url(url_data['name'], url_data['created_at'])['id']
     # Редирект на страницу с информацией об URL
     flash('Страница успешно добавлена', 'success')
@@ -93,7 +95,7 @@ def add_url():
 
 # Отображение информации о сайте
 # Каждая страница имеет уникальный URL, поэтому url_id
-@app.get('/url/<int:url_id>')
+@app.get('/urls/<int:url_id>')
 # Получение id URL, который совпадает с идентификатором URL в базе данных
 def get_url(url_id):
     url_info = repo.get_url_info(url_id)  # Поиск информации о URL по url_id
@@ -101,17 +103,19 @@ def get_url(url_id):
         abort(404)  # Вызов ошибки 404
     # Получение информации о проверках URL
     checks = repo.get_url_checks(url_id)
+    messages = get_flashed_messages(with_categories=True)  # Получение flash сообщений
     return render_template(
         'main/url_info.html',
         url_id=url_id,
         name=url_info['name'],
         created_at=url_info['created_at'],
-        checks=checks
+        checks=checks,
+        messages=messages,
     )
 
 
 # Проверка URL производится на странице с информацией о сайте
-@app.post('/url/<int:url_id>')
+@app.post('/urls/<int:url_id>')
 def check_url(url_id: int):
     # Получение информации о URL по url_id
     url = repo.get_url_address(url_id)['name']
@@ -134,13 +138,16 @@ def get_urls():
     urls, total = repo.get_urls_paginated(page, per_page)
     total_pages = (total + per_page - 1) // per_page
 
+    messages = get_flashed_messages(with_categories=True)  # Получение flash сообщений
+
     return render_template(
         'main/urls.html',
         urls=urls,
         current_page=page,
         total_pages=total_pages,
         max=max,
-        min=min
+        min=min,
+        messages=messages,
     )
 
 
