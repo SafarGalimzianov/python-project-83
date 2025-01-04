@@ -156,12 +156,14 @@ def get_urls():
 # Обработка HTTP ошибок
 @app.errorhandler(400)
 @app.errorhandler(404)
+@app.errorhandler(422)
 @app.errorhandler(500)
 def handle_error(e):
     # Коды ошибок и сообщения
     error_messages = {
         400: "Неверный запрос",
         404: "Такой страницы не существует",
+        422: "Неверный URL",
         500: "Внутренняя ошибка сервера"
     }
 
