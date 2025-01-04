@@ -75,7 +75,7 @@ def search():  # Форма поиска, поэтому search
 
 
 # Добавление URL
-@app.post('/')  # Форма поиска находится на главной странице
+@app.post('/urls')  # Форма поиска находится на главной странице
 def add_url():
     url = request.form.to_dict()['url']  # Получение URL из формы
     url = sanitize_url_input(url)  # Очистка URL от вредоносных элементов
@@ -87,9 +87,10 @@ def add_url():
     # Если URL доступен, то URl добавляется в базу данных
     if repo.in_db(url):
         flash('Страница уже существует', 'info')
+    else:
+        flash('Страница успешно добавлена', 'success')
     url_id = repo.add_url(url_data['name'], url_data['created_at'])['id']
     # Редирект на страницу с информацией об URL
-    flash('Страница успешно добавлена', 'success')
     return redirect(url_for('get_url', url_id=url_id))
 
 
