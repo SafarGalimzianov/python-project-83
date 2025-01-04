@@ -87,6 +87,7 @@ def add_url():
     # Если URL доступен, то URl добавляется в базу данных
     url_id = repo.add_url(url_data['name'], url_data['created_at'])['id']
     # Редирект на страницу с информацией об URL
+    flash('Страница успешно добавлена', 'success')
     return redirect(url_for('get_url', url_id=url_id))
 
 
