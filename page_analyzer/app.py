@@ -126,7 +126,7 @@ def add_url():
             url_id = repo.add_url(url, get_current_date())['id']
             flash('Страница успешно добавлена', 'success')
             return redirect(url_for('get_url', url_id=url_id))
-        except Exception as e:
+        except Exception:
             flash('Некорректный URL', 'danger')
             return render_template('main/search.html'), 422
 
