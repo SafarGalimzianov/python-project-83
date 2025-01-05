@@ -70,6 +70,7 @@ def create_tables():
             cur.execute(f.read())
 '''
 
+
 def with_db_connection(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
@@ -89,6 +90,7 @@ def with_db_connection(f):
             if conn:
                 conn.close()
     return decorated_function
+
 
 # Отображение главной страницы
 @app.get('/')  # Главная страница
