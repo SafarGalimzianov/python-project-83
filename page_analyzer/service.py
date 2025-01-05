@@ -196,4 +196,8 @@ def _extract_domain(url: str) -> str:
 
 
 def sanitize_url_input(user_input):  # Очистка данных от вредоносных элементов
-    return bleach.clean(user_input, strip=True)  # Возврат очищенных данных
+    cleaned_url = bleach.clean(user_input, strip=True)
+    parsed_url = urlparse(cleaned_url)
+    # Keep the path to treat different paths as different URLs
+    normalized_url = urlunparse(parsed_url)
+    return normalized_url
