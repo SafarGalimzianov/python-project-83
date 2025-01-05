@@ -10,18 +10,17 @@
         <div class="form-group">
             <label for="url-input">URL:</label>
             <input id="url-input"
-                   class="form-control"
-                   type="url" 
+                   class="form-control form-control-lg"
+                   type="text"
                    name="url"
                    value="{{ search|e }}"
                    placeholder="https://example.com"
                    required>
         </div>
-        <button type="submit" 
-                class="btn btn-primary mt-3"
-                data-test="submit-button">
-            Search
-        </button>
+        <input type="submit" 
+               class="btn btn-primary mt-3"
+               value="Search"
+               data-test="submit-button">
     </form>
 </div>
 {% endblock %}

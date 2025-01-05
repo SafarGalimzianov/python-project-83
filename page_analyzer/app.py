@@ -49,10 +49,8 @@ def add_csp_header(response):
     response.headers['Content-Security-Policy'] = (
         "default-src 'self'; "
         "script-src 'self' https://cdn.jsdelivr.net; "
-        "style-src 'self' https://cdn.jsdelivr.net \
-            https://cdnjs.cloudflare.com; "
-        "font-src 'self' https://cdn.jsdelivr.net \
-            https://cdnjs.cloudflare.com; "
+        "style-src 'self' https://cdn.jsdelivr.net 'unsafe-inline'; "
+        "font-src 'self' https://cdn.jsdelivr.net; "
         "img-src 'self' data: https:; "
         "connect-src 'self';"
     )
