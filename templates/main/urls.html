@@ -39,11 +39,11 @@
                         {% for url in urls %}
                         <tr class="url-row">
                             <td class="px-4 py-3">{{ url['id'] }}</td>
-                            <td class="px-4 py-3">{{ url['name'] }}</td>
+                            <td class="px-4 py-3">{{ url['url'] }}</td>
                             <td class="px-4 py-3">{{ url['created_at']|default('Нет проверок', true) }}</td>
                             <td class="px-4 py-3">
                                 {% if url['status_code'] %}
-                                    <span class="badge bg-{{ 'success' if url['response_code'] == 200 else 'warning' }}">
+                                    <span class="badge bg-{{ 'success' if url['status_code'] == 200 else 'warning' }}">
                                         {{ url['status_code'] }}
                                     </span>
                                 {% else %}

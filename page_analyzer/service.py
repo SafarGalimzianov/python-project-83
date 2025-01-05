@@ -225,19 +225,18 @@ def sanitize_url_input(user_input):
     try:
         cleaned_url = bleach.clean(user_input.strip(), strip=True)
         parsed_url = urlparse(cleaned_url)
-        
-        # Basic validation
-        if not parsed_url.scheme or not parsed_url.netloc:
+
+        if not parsed_url.scheme or not parsed_url.netloc or \
+           parsed_url.scheme not in ['http', 'https']:
             return None
-            
-        # Normalize the URL
+
         normalized_url = urlunparse((
             parsed_url.scheme,
             parsed_url.netloc,
-            parsed_url.path.rstrip('/'),
             '',
             '',
-            ''
+            '',
+            '',
         ))
         return normalized_url
     except:

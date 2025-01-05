@@ -115,17 +115,19 @@ def add_url():
             flash('Некорректный URL', 'danger')
             return render_template('main/search.html'), 422
 
+        # Check if URL exists in database (using normalized version)
         if repo.in_db(url):
             flash('Страница уже существует', 'info')
             url_id = repo.get_url_by_name(url)['id']
             return redirect(url_for('get_url', url_id=url_id))
 
+        # Try to add URL
         try:
             url_id = repo.add_url(url, get_current_date())['id']
             flash('Страница успешно добавлена', 'success')
             return redirect(url_for('get_url', url_id=url_id))
-        except Exception:
-            flash('Произошла ошибка при добавлении страницы', 'danger')
+        except Exception as e:
+            flash('Некорректный URL', 'danger')
             return render_template('main/search.html'), 422
 
     except Exception:
