@@ -14,6 +14,7 @@ from flask import (
     render_template,  # Рендеринг шаблона
     request,  # Получение ответа от пользователя
     url_for,  # Получение пути по имени функции
+    urlparse,  # Парсинг URL
 )
 # Для загрузки переменных окружения из файла .env
 from dotenv import load_dotenv
@@ -102,25 +103,38 @@ def search():  # Форма поиска, поэтому search
 
 
 # Добавление URL
-@app.post('/urls')  # Форма поиска находится на главной странице
+@app.post('/urls')
 @with_db_connection
 def add_url():
-    url = request.form.to_dict()['url']  # Получение URL из формы
-    url = sanitize_url_input(url)  # Очистка URL от вредоносных элементов
-    url_data = make_request(url)  # Получение ответа по URL из ответа
-    if not url_data['name']:  # Если произошла ощибка при запросе
-        flash(f"Нет доступа к URL {url}: {url_data['error']}", 'error')
-        abort(422)
-        return redirect(url_for('search'))  # Возврат на главную страницу
+    try:
+        url = request.form.to_dict()['url']
+        url = sanitize_url_input(url)
 
-    # Если URL доступен, то URl добавляется в базу данных
-    if repo.in_db(url):
-        flash('Страница уже существует', 'info')
-    else:
+        # Validate URL format
+        parsed = urlparse(url)
+        if not parsed.scheme or not parsed.netloc:
+            flash('Некорректный URL', 'error')
+            return render_template('main/search.html'), 422
+
+        # Check if URL exists in database
+        if repo.in_db(url):
+            flash('Страница уже существует', 'info')
+            url_id = repo.get_url_by_name(url)['id']
+            return redirect(url_for('get_url', url_id=url_id))
+
+        # Add new URL
+        url_data = make_request(url)
+        if not url_data['name']:
+            flash('Некорректный URL', 'error')
+            return render_template('main/search.html'), 422
+
+        url_id = repo.add_url(url, url_data['created_at'])['id']
         flash('Страница успешно добавлена', 'success')
-    url_id = repo.add_url(url_data['name'], url_data['created_at'])['id']
-    # Редирект на страницу с информацией об URL
-    return redirect(url_for('get_url', url_id=url_id))
+        return redirect(url_for('get_url', url_id=url_id))
+
+    except Exception:
+        flash('Некорректный URL', 'error')
+        return render_template('main/search.html'), 422
 
 
 # Отображение информации о сайте
@@ -149,16 +163,23 @@ def get_url(url_id):
 @app.post('/urls/<int:url_id>')
 @with_db_connection
 def check_url(url_id: int):
-    # Получение информации о URL по url_id
-    url = repo.get_url_address(url_id)['name']
-    # Если прошедший при добавлении в базу данных URL больше не доступен
+    url = repo.get_url_address(url_id)
     if not url:
-        flash('URL больше не доступен', 'error')
-        abort(404)  # Вызов ошибки 404
-    data = make_request(url)  # Получение данных ответа
-    repo.check_url(data)  # Добавление данных проверки URL в базу данных
-    # Перенаправление на страницу проверенного URL
-    return redirect(url_for('get_url', url_id=url_id))
+        flash('URL не найден', 'error')
+        abort(404)
+
+    try:
+        data = make_request(url['name'])
+        if not data['name']:
+            flash('Произошла ошибка при проверке', 'error')
+            return redirect(url_for('get_url', url_id=url_id))
+
+        repo.check_url(data)
+        flash('Страница успешно проверена', 'success')
+        return redirect(url_for('get_url', url_id=url_id))
+    except Exception:
+        flash('Произошла ошибка при проверке', 'error')
+        return redirect(url_for('get_url', url_id=url_id))
 
 
 # Отображение списка URL

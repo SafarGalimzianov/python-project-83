@@ -42,6 +42,30 @@ def format_date(date: str) -> str:  # Форматирование даты
 session = requests.Session()
 
 def make_request(url: str, fix=True) -> dict:
+    try:
+        response = session.get(url, timeout=5)
+        response.raise_for_status()
+        
+        soup = BeautifulSoup(response.text, 'html.parser')
+        h1_content = soup.h1.string if (soup.h1 and soup.h1.string) else ''
+        title_content = soup.title.string if (soup.title and soup.title.string) else ''
+        description_content = ''
+        
+        if soup.find('meta', attrs={'name': 'description'}):
+            description_content = soup.find('meta', attrs={'name': 'description'})['content']
+            
+        return {
+            'name': url,
+            'status_code': response.status_code,
+            'h1': h1_content,
+            'title': title_content,
+            'description': description_content,
+            'created_at': get_current_date()
+        }
+    except (requests.RequestException, requests.ConnectionError, requests.Timeout):
+        return {'name': False, 'error': 'Connection error'}
+
+    '''
     if fix:
         pass
     '''
@@ -93,7 +117,7 @@ def make_request(url: str, fix=True) -> dict:
         'description': description_content,
         'created_at': check_date
     }
-
+    '''
 
 # Проверка URL на доступность
 # Получение URL в виде строки и возвращение True или False
@@ -195,9 +219,17 @@ def _extract_domain(url: str) -> str:
     return None  # Возврат None при отсутствии совпадений
 
 
-def sanitize_url_input(user_input):  # Очистка данных от вредоносных элементов
+def sanitize_url_input(user_input):
     cleaned_url = bleach.clean(user_input, strip=True)
     parsed_url = urlparse(cleaned_url)
-    # Keep the path to treat different paths as different URLs
-    normalized_url = urlunparse(parsed_url)
+    
+    # Normalize the URL by keeping only scheme, netloc and removing trailing slashes
+    normalized_url = urlunparse((
+        parsed_url.scheme,
+        parsed_url.netloc,
+        parsed_url.path.rstrip('/'),
+        '',
+        '',
+        ''
+    ))
     return normalized_url

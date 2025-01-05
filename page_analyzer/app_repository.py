@@ -7,6 +7,16 @@ class AppRepository:
         self.urls_table = 'urls'
         self.checks_table = 'url_checks'
 
+    def get_url_by_name(self, name: str) -> dict:
+        with self.conn.cursor(cursor_factory=DictCursor) as cur:
+            cur.execute(f'''
+                SELECT id
+                FROM {self.urls_table}
+                WHERE url = %s;
+            ''', (name,))
+            row = cur.fetchone()
+            return dict(row) if row else None
+
     def get_urls(self):
         with self.conn.cursor(cursor_factory=DictCursor) as cur:
             cur.execute(f'''
