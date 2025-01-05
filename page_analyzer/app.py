@@ -14,8 +14,10 @@ from flask import (
     render_template,  # Рендеринг шаблона
     request,  # Получение ответа от пользователя
     url_for,  # Получение пути по имени функции
-    urlparse,  # Парсинг URL
 )
+
+from urllib.parse import urlparse  # Для парсинга URL
+
 # Для загрузки переменных окружения из файла .env
 from dotenv import load_dotenv
 

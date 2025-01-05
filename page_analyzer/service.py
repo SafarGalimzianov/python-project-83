@@ -11,6 +11,8 @@ import re
 # Для очистки данных HTML от вредоносных элементов (sanitize_url_input())
 import bleach
 
+from urllib.parse import urlparse # Для парсинга URL
+
 
 def get_current_date() -> str:  # Получение текущей даты
     # Возврат текущей даты в формате 'YYYY-MM-DD'
