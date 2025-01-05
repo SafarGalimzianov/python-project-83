@@ -4,7 +4,6 @@ import psycopg2.errors
 import pytest
 import random
 import string
-from datetime import datetime
 from page_analyzer.app_repository import AppRepository
 
 from dotenv import load_dotenv
@@ -21,7 +20,7 @@ def generate_random_url():
 @pytest.fixture(scope='session')
 def setup_session():
     if not os.getenv('DATABASE_URL'):
-        raise psycopg2.errors.UndefinedObject("DATABASE_URL environment variable not set")
+        raise psycopg2.errors.UndefinedObject("DATABASE_URL variable not set")
     return True
 
 
@@ -43,6 +42,7 @@ def transaction_rollback(setup_session):
 @pytest.fixture
 def repository(transaction_rollback):
     return AppRepository(transaction_rollback)
+
 
 '''
 def test_add_and_get_url(repository):

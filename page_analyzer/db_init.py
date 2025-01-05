@@ -1,6 +1,5 @@
 from os import getenv
 import psycopg2
-from psycopg2.extras import DictCursor
 # Для загрузки переменных окружения из файла .env
 from dotenv import load_dotenv
 

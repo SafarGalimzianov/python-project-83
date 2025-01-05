@@ -11,8 +11,6 @@ import re
 # Для очистки данных HTML от вредоносных элементов (sanitize_url_input())
 import bleach
 
-from urllib.parse import urlparse # Для парсинга URL
-
 
 def get_current_date() -> str:  # Получение текущей даты
     # Возврат текущей даты в формате 'YYYY-MM-DD'
@@ -43,6 +41,7 @@ def format_date(date: str) -> str:  # Форматирование даты
 # Получение URL в виде строки и возвращение данных ответа в виде словаря
 session = requests.Session()
 
+
 def make_request(url: str, fix=True) -> dict:
     try:
         response = session.get(url, timeout=5)
@@ -50,11 +49,13 @@ def make_request(url: str, fix=True) -> dict:
         
         soup = BeautifulSoup(response.text, 'html.parser')
         h1_content = soup.h1.string if (soup.h1 and soup.h1.string) else ''
-        title_content = soup.title.string if (soup.title and soup.title.string) else ''
+        title_content = soup.title.string \
+            if (soup.title and soup.title.string) else ''
         description_content = ''
         
         if soup.find('meta', attrs={'name': 'description'}):
-            description_content = soup.find('meta', attrs={'name': 'description'})['content']
+            description_content = soup.find('meta', \
+                                            attrs={'name': 'description'})['content']
             
         return {
             'name': url,
@@ -120,6 +121,7 @@ def make_request(url: str, fix=True) -> dict:
         'created_at': check_date
     }
     '''
+
 
 # Проверка URL на доступность
 # Получение URL в виде строки и возвращение True или False
@@ -239,5 +241,5 @@ def sanitize_url_input(user_input):
             '',
         ))
         return normalized_url
-    except:
+    except Exception:
         return None
