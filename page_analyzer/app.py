@@ -109,31 +109,26 @@ def add_url():
     try:
         url = request.form.to_dict()['url']
         url = sanitize_url_input(url)
-
-        # Validate URL format
-        parsed = urlparse(url)
-        if not parsed.scheme or not parsed.netloc:
+        
+        if not url:
             flash('Некорректный URL', 'danger')
             return render_template('main/search.html'), 422
 
-        # Check if URL exists in database
         if repo.in_db(url):
             flash('Страница уже существует', 'info')
             url_id = repo.get_url_by_name(url)['id']
             return redirect(url_for('get_url', url_id=url_id))
 
-        # Add new URL
-        url_data = make_request(url)
-        if not url_data['name']:
-            flash('Некорректный URL', 'danger')
+        try:
+            url_id = repo.add_url(url, get_current_date())['id']
+            flash('Страница успешно добавлена', 'success')
+            return redirect(url_for('get_url', url_id=url_id))
+        except Exception as e:
+            flash('Произошла ошибка при добавлении страницы', 'danger')
             return render_template('main/search.html'), 422
 
-        url_id = repo.add_url(url, url_data['created_at'])['id']
-        flash('Страница успешно добавлена', 'success')
-        return redirect(url_for('get_url', url_id=url_id))
-
-    except Exception as e:
-        flash(f"Некорректный URL {e}", 'danger')
+    except Exception:
+        flash('Некорректный URL', 'danger')
         return render_template('main/search.html'), 422
 
 
