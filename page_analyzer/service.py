@@ -54,8 +54,8 @@ def make_request(url: str, fix=True) -> dict:
         description_content = ''
         
         if soup.find('meta', attrs={'name': 'description'}):
-            description_content = soup.find('meta', \
-                                            attrs={'name': 'description'})['content']
+            description_content = \
+                soup.find('meta', attrs={'name': 'description'})['content']
             
         return {
             'name': url,
@@ -65,7 +65,7 @@ def make_request(url: str, fix=True) -> dict:
             'description': description_content,
             'created_at': get_current_date()
         }
-    except (requests.RequestException, requests.ConnectionError, requests.Timeout):
+    except (requests.RequestException, requests.ConnectionError):
         return {'name': False, 'error': 'Connection error'}
 
     '''
