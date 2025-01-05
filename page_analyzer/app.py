@@ -111,7 +111,7 @@ def add_url():
     try:
         url = request.form.to_dict()['url']
         url = sanitize_url_input(url)
-        
+
         # Validate URL format
         parsed = urlparse(url)
         if not parsed.scheme or not parsed.netloc:
@@ -133,9 +133,9 @@ def add_url():
         url_id = repo.add_url(url, url_data['created_at'])['id']
         flash('Страница успешно добавлена', 'success')
         return redirect(url_for('get_url', url_id=url_id))
-        
+
     except Exception as e:
-        flash('Некорректный URL', 'danger')
+        flash(f"Некорректный URL {e}", 'danger')
         return render_template('main/search.html'), 422
 
 
