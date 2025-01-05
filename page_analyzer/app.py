@@ -111,11 +111,11 @@ def add_url():
     try:
         url = request.form.to_dict()['url']
         url = sanitize_url_input(url)
-
+        
         # Validate URL format
         parsed = urlparse(url)
         if not parsed.scheme or not parsed.netloc:
-            flash('Некорректный URL', 'error')
+            flash('Некорректный URL', 'danger')
             return render_template('main/search.html'), 422
 
         # Check if URL exists in database
@@ -127,15 +127,15 @@ def add_url():
         # Add new URL
         url_data = make_request(url)
         if not url_data['name']:
-            flash('Некорректный URL', 'error')
+            flash('Некорректный URL', 'danger')
             return render_template('main/search.html'), 422
 
         url_id = repo.add_url(url, url_data['created_at'])['id']
         flash('Страница успешно добавлена', 'success')
         return redirect(url_for('get_url', url_id=url_id))
-
-    except Exception:
-        flash('Некорректный URL', 'error')
+        
+    except Exception as e:
+        flash('Некорректный URL', 'danger')
         return render_template('main/search.html'), 422
 
 

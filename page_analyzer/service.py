@@ -222,16 +222,23 @@ def _extract_domain(url: str) -> str:
 
 
 def sanitize_url_input(user_input):
-    cleaned_url = bleach.clean(user_input, strip=True)
-    parsed_url = urlparse(cleaned_url)
-    
-    # Normalize the URL by keeping only scheme, netloc and removing trailing slashes
-    normalized_url = urlunparse((
-        parsed_url.scheme,
-        parsed_url.netloc,
-        parsed_url.path.rstrip('/'),
-        '',
-        '',
-        ''
-    ))
-    return normalized_url
+    try:
+        cleaned_url = bleach.clean(user_input.strip(), strip=True)
+        parsed_url = urlparse(cleaned_url)
+        
+        # Basic validation
+        if not parsed_url.scheme or not parsed_url.netloc:
+            return None
+            
+        # Normalize the URL
+        normalized_url = urlunparse((
+            parsed_url.scheme,
+            parsed_url.netloc,
+            parsed_url.path.rstrip('/'),
+            '',
+            '',
+            ''
+        ))
+        return normalized_url
+    except:
+        return None
