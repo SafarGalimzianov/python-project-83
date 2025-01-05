@@ -16,7 +16,7 @@ from flask import (
     url_for,  # Получение пути по имени функции
 )
 
-from urllib.parse import urlparse  # Для парсинга URL
+# from urllib.parse import urlparse  # Для парсинга URL
 
 # Для загрузки переменных окружения из файла .env
 from dotenv import load_dotenv
@@ -26,7 +26,7 @@ from page_analyzer.app_repository import AppRepository
 
 # Для выполнения запроса к URL:
 # исправление неверный URL при возникновении ошибок и получение данных ответа
-from page_analyzer.service import make_request, sanitize_url_input
+from page_analyzer.service import make_request, sanitize_url_input, get_current_date
 
 load_dotenv()  # Загрузка переменных окружения из файла .env
 
@@ -109,7 +109,7 @@ def add_url():
     try:
         url = request.form.to_dict()['url']
         url = sanitize_url_input(url)
-        
+
         if not url:
             flash('Некорректный URL', 'danger')
             return render_template('main/search.html'), 422
@@ -123,7 +123,7 @@ def add_url():
             url_id = repo.add_url(url, get_current_date())['id']
             flash('Страница успешно добавлена', 'success')
             return redirect(url_for('get_url', url_id=url_id))
-        except Exception as e:
+        except Exception:
             flash('Произошла ошибка при добавлении страницы', 'danger')
             return render_template('main/search.html'), 422
 
