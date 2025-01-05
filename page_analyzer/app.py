@@ -26,7 +26,8 @@ from page_analyzer.app_repository import AppRepository
 
 # Для выполнения запроса к URL:
 # исправление неверный URL при возникновении ошибок и получение данных ответа
-from page_analyzer.service import make_request, sanitize_url_input, get_current_date
+from page_analyzer.service import \
+    make_request, sanitize_url_input, get_current_date
 
 load_dotenv()  # Загрузка переменных окружения из файла .env
 
