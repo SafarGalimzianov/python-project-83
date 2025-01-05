@@ -1,3 +1,5 @@
+from functools import wraps  # Для декоратора
+
 # Для получения переменных окружения
 from os import getenv
 # Для работы с базой данных (app_repository.py)
@@ -59,15 +61,38 @@ app.config['SECRET_KEY'] = getenv('SECRET_KEY')
 app.config['DATABASE_URL'] = getenv('DATABASE_URL')
 app.config['PORT'] = getenv('PORT')
 
+'''
+def create_tables():
+    conn = psycopg2.connect(app.config['DATABASE_URL'])
+    cur = conn.cursor()
+    with conn:
+        with open('database.sql') as f:
+            cur.execute(f.read())
+'''
 
-# Соединение с базой данных
-conn = psycopg2.connect(app.config['DATABASE_URL'])
-
-repo = AppRepository(conn)  # Инстанцирование класса AppRepository
-
+def with_db_connection(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        conn = None
+        try:
+            conn = psycopg2.connect(getenv('DATABASE_URL'))
+            # Pass connection to global repo instance
+            global repo
+            repo = AppRepository(conn)
+            return f(*args, **kwargs)
+        except psycopg2.Error as e:
+            if conn:
+                conn.rollback()
+            flash('Database error: ' + str(e), 'error')
+            abort(500)
+        finally:
+            if conn:
+                conn.close()
+    return decorated_function
 
 # Отображение главной страницы
 @app.get('/')  # Главная страница
+@with_db_connection
 def search():  # Форма поиска, поэтому search
     # Получение сообщений пользователю
     messages = get_flashed_messages(with_categories=True)
@@ -76,6 +101,7 @@ def search():  # Форма поиска, поэтому search
 
 # Добавление URL
 @app.post('/urls')  # Форма поиска находится на главной странице
+@with_db_connection
 def add_url():
     url = request.form.to_dict()['url']  # Получение URL из формы
     url = sanitize_url_input(url)  # Очистка URL от вредоносных элементов
@@ -98,6 +124,7 @@ def add_url():
 # Отображение информации о сайте
 # Каждая страница имеет уникальный URL, поэтому url_id
 @app.get('/urls/<int:url_id>')
+@with_db_connection
 # Получение id URL, который совпадает с идентификатором URL в базе данных
 def get_url(url_id):
     url_info = repo.get_url_info(url_id)  # Поиск информации о URL по url_id
@@ -118,6 +145,7 @@ def get_url(url_id):
 
 # Проверка URL производится на странице с информацией о сайте
 @app.post('/urls/<int:url_id>')
+@with_db_connection
 def check_url(url_id: int):
     # Получение информации о URL по url_id
     url = repo.get_url_address(url_id)['name']
@@ -133,6 +161,7 @@ def check_url(url_id: int):
 
 # Отображение списка URL
 @app.get('/urls')
+@with_db_connection
 def get_urls():
     page = request.args.get('page', 1, type=int)
     per_page = 10  # Число URL на странице
