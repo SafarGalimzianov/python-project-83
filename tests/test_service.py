@@ -10,6 +10,7 @@ TEST_URLS = {
     1: 'http://localhost:1'
 }
 
+
 RESPONSES_WITH_FIX = {
     code: make_request(url) for code, url in TEST_URLS.items()
     }
@@ -17,12 +18,14 @@ RESPONSES_WITHOUT_FIX = {
     code: make_request(url, fix=False) for code, url in TEST_URLS.items()
     }
 
+
 def test_make_request_valid_url():
     result = RESPONSES_WITH_FIX[200]
     assert 'error' not in result
     assert result['status_code'] == 200
     assert isinstance(result['h1'], str)
     assert isinstance(result['title'], str)
+
 
 def test_make_request_not_found():
     '''
@@ -34,6 +37,8 @@ def test_make_request_not_found():
     assert 'error' not in result
     assert result['status_code'] == 404
     '''
+
+
 def test_make_request_server_error():
     '''
     result = RESPONSES_WITH_FIX[500]
@@ -44,10 +49,13 @@ def test_make_request_server_error():
     assert 'error' not in result
     assert result['status_code'] == 500
     '''
+
+
 def test_make_request_dns_error():
     result = RESPONSES_WITH_FIX[0]
     assert result['name'] is False
     assert 'error' in result
+
 
 def test_make_request_connection_error(): 
     result = RESPONSES_WITH_FIX[1]
