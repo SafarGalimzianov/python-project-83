@@ -115,13 +115,11 @@ def add_url():
             flash('Некорректный URL', 'danger')
             return render_template('main/search.html'), 422
 
-        # Check if URL exists in database (using normalized version)
-        if repo.in_db(url):
+        url_id = repo.get_url_by_name(url)
+        if url:
             flash('Страница уже существует', 'info')
-            url_id = repo.get_url_by_name(url)['id']
             return redirect(url_for('get_url', url_id=url_id))
 
-        # Try to add URL
         try:
             url_id = repo.add_url(url, get_current_date())['id']
             flash('Страница успешно добавлена', 'success')
