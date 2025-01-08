@@ -8,4 +8,3 @@ cc-test-reporter
 .flake8
 .coverage
 temp.*
-Makefile
