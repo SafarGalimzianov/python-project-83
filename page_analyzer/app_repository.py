@@ -15,7 +15,7 @@ class AppRepository:
                 WHERE url = %s;
             ''', (name,))
             row = cur.fetchone()
-            return dict(row)
+            return dict(row) if row else None
 
     def get_urls(self):
         with self.conn.cursor(cursor_factory=DictCursor) as cur:
