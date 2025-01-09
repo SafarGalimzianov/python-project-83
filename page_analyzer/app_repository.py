@@ -14,7 +14,7 @@ class AppRepository:
                 FROM {self.urls_table}
                 WHERE url = %s;
             ''', (name,))
-            return cur.fetchone()
+            return cur.fetchone()['id']
 
     def get_urls_paginated(self, page: int, per_page: int) -> tuple:
         offset = (page - 1) * per_page
