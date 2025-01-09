@@ -129,7 +129,6 @@ def add_url():
         url_id = repo.get_url_by_name(url)
         if url_id:
             flash('Страница уже существует', 'info')
-            url_id = url_id['id']
             return redirect(url_for('get_url', url_id=url_id))
 
         if not isinstance(url, str):
@@ -138,7 +137,7 @@ def add_url():
             raise TypeError("Creation date must be a string")
 
         try:
-            url_id = repo.add_url(url, get_current_date())['id']
+            url_id = repo.add_url(url, get_current_date())
             flash('Страница успешно добавлена', 'success')
             return redirect(url_for('get_url', url_id=url_id))
         except Exception:

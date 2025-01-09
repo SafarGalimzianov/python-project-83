@@ -14,7 +14,7 @@ class AppRepository:
                 FROM {self.urls_table}
                 WHERE url = %s;
             ''', (name,))
-            return cur.fetchone()
+            return cur.fetchone().get('id', None)
 
     def get_urls_paginated(self, page: int, per_page: int) -> tuple:
         offset = (page - 1) * per_page
@@ -105,19 +105,11 @@ class AppRepository:
     def add_url(self, name: str, creation_date: str) -> dict:
         with self.conn.cursor(cursor_factory=DictCursor) as cur:
             cur.execute(f'''
-                SELECT id
-                FROM {self.urls_table}
-                WHERE url = %s;
-            ''', (name,))
-            url_id = cur.fetchone()
-
-            if not url_id:
-                cur.execute(f'''
-                    INSERT INTO {self.urls_table}(url, created_at)
-                    VALUES (%s, %s)
-                    RETURNING id;
-                ''', (name, creation_date))
-                url_id = cur.fetchone()
+                INSERT INTO {self.urls_table}(url, created_at)
+                ON CONFLICT (url) DO NOTHING
+                VALUES (%s, %s)
+                RETURNING id;
+            ''', (name, creation_date))
+            return cur.fetchone().get('id', None)
 
         self.conn.commit()
-        return url_id
