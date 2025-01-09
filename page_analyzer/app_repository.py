@@ -14,8 +14,7 @@ class AppRepository:
                 FROM {self.urls_table}
                 WHERE url = %s;
             ''', (name,))
-            row = cur.fetchone()
-            return dict(row) if row else None
+            return cur.fetchone()
 
     def get_urls(self):
         with self.conn.cursor(cursor_factory=DictCursor) as cur:
@@ -37,7 +36,7 @@ class AppRepository:
                 ) AS uc ON ul.id = uc.url_id
                 ORDER BY ul.id ASC;
             ''')
-            return [dict(row) for row in cur.fetchall()]
+            return cur.fetchall()
 
     def get_urls_paginated(self, page: int, per_page: int) -> tuple:
         offset = (page - 1) * per_page
@@ -65,7 +64,7 @@ class AppRepository:
                 LIMIT %s OFFSET %s;
             ''', (per_page, offset))
 
-            return [dict(row) for row in cur.fetchall()], total
+            return cur.fetchall(), total
 
     def get_url_info(self, url_id: int) -> dict:
         with self.conn.cursor(cursor_factory=DictCursor) as cur:
@@ -74,8 +73,7 @@ class AppRepository:
                 FROM {self.urls_table}
                 WHERE id = %s;
             ''', (url_id,))
-            row = cur.fetchone()
-            return dict(row) if row else None
+            return cur.fetchone()
 
     def get_url_checks(self, url_id: int) -> list:
         with self.conn.cursor(cursor_factory=DictCursor) as cur:
@@ -87,7 +85,7 @@ class AppRepository:
                 WHERE url_id = %s
                 ORDER BY id DESC;
             ''', (url_id,))
-            return [dict(row) for row in cur.fetchall()]
+            return cur.fetchall()
 
     def get_url_address(self, url_id: int) -> dict:
         with self.conn.cursor(cursor_factory=DictCursor) as cur:
@@ -96,8 +94,7 @@ class AppRepository:
                 FROM {self.urls_table}
                 WHERE id = %s;
             ''', (url_id,))
-            row = cur.fetchone()
-            return dict(row) if row else None
+            return cur.fetchone()
 
     def check_url(self, data: dict) -> None:
         with self.conn.cursor(cursor_factory=DictCursor) as cur:
@@ -149,7 +146,7 @@ class AppRepository:
                     VALUES (%s, %s)
                     RETURNING id;
                 ''', (name, creation_date))
-                url_id = dict(cur.fetchone())
+                url_id = cur.fetchone()
 
         self.conn.commit()
         return url_id

@@ -44,7 +44,6 @@ app.jinja_env.autoescape = True  # Экранирование HTML-символ�
 
 
 # Установка заголовков безопасности
-# In app.py, update the CSP header to include FontAwesome CDN
 @app.after_request
 def add_csp_header(response):
     response.headers['Content-Security-Policy'] = (
@@ -63,15 +62,6 @@ app.config['SECRET_KEY'] = getenv('SECRET_KEY')
 app.config['DATABASE_URL'] = getenv('DATABASE_URL')
 app.config['PORT'] = getenv('PORT')
 
-'''
-def create_tables():
-    conn = psycopg2.connect(app.config['DATABASE_URL'])
-    cur = conn.cursor()
-    with conn:
-        with open('database.sql') as f:
-            cur.execute(f.read())
-'''
-
 
 def with_db_connection(f):
     @wraps(f)
@@ -79,7 +69,6 @@ def with_db_connection(f):
         conn = None
         try:
             conn = psycopg2.connect(getenv('DATABASE_URL'))
-            # Pass connection to global repo instance
             global repo
             repo = AppRepository(conn)
             return f(*args, **kwargs)
@@ -94,16 +83,15 @@ def with_db_connection(f):
     return decorated_function
 
 
-# Отображение главной страницы
-@app.get('/')  # Главная страница
+# Страница поиска
+@app.get('/')
 @with_db_connection
-def search():  # Форма поиска, поэтому search
-    # Получение сообщений пользователю
+def search():
     messages = get_flashed_messages(with_categories=True)
     return render_template('main/search.html', messages=messages)
 
 
-# Добавление URL
+# Страница добавления URL
 @app.post('/urls')
 @with_db_connection
 def add_url():
@@ -134,16 +122,13 @@ def add_url():
         return render_template('main/search.html'), 422
 
 
-# Отображение информации о сайте
-# Каждая страница имеет уникальный URL, поэтому url_id
+# Страница с информацией об URL по уникальному id URL
 @app.get('/urls/<int:url_id>')
 @with_db_connection
-# Получение id URL, который совпадает с идентификатором URL в базе данных
 def get_url(url_id):
-    url_info = repo.get_url_info(url_id)  # Поиск информации о URL по url_id
-    if not url_info:  # Если URL не найден в базе данных
-        abort(404)  # Вызов ошибки 404
-    # Получение информации о проверках URL
+    url_info = repo.get_url_info(url_id)
+    if not url_info:
+        abort(404)
     checks = repo.get_url_checks(url_id)
     messages = get_flashed_messages(with_categories=True)
     return render_template(
@@ -208,7 +193,6 @@ def get_urls():
 @app.errorhandler(422)
 @app.errorhandler(500)
 def handle_error(e):
-    # Коды ошибок и сообщения
     error_messages = {
         400: "Неверный запрос",
         404: "Такой страницы не существует",
