@@ -14,7 +14,7 @@ class AppRepository:
                 FROM {self.urls_table}
                 WHERE url = %s;
             ''', (name,))
-            return cur.fetchone().get('id', None)
+            return cur.fetchone()
 
     def get_urls_paginated(self, page: int, per_page: int) -> tuple:
         offset = (page - 1) * per_page
@@ -110,5 +110,6 @@ class AppRepository:
                 VALUES (%s, %s)
                 RETURNING id;
             ''', (name, creation_date))
+            result = cur.fetchone()
             self.conn.commit()
-            return cur.fetchone().get('id', None)
+            return result
