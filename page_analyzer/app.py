@@ -137,7 +137,7 @@ def add_url():
             return redirect(url_for('get_url', url_id=url_id))
 
         try:
-            url_id = repo.add_url(url, get_current_date())['id']
+            url_id = repo.add_url(url, get_current_date())
             flash('Страница успешно добавлена', 'success')
             return redirect(url_for('get_url', url_id=url_id))
         except Exception:

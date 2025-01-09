@@ -112,4 +112,4 @@ class AppRepository:
             ''', (name, creation_date))
             result = cur.fetchone()
             self.conn.commit()
-            return result
+            return result['id']
