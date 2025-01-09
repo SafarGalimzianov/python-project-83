@@ -103,13 +103,14 @@ class AppRepository:
         self.conn.commit()
 
     def add_url(self, name: str, creation_date: str) -> dict:
-        with self.conn.cursor(cursor_factory=DictCursor) as cur:
-            cur.execute(f'''
-                INSERT INTO {self.urls_table}(url, created_at)
-                ON CONFLICT (url) DO NOTHING
-                VALUES (%s, %s)
-                RETURNING id;
-            ''', (name, creation_date))
-            result = cur.fetchone()
-        self.conn.commit()
+        result = self.get_url_by_name(name)
+        if not result:
+            with self.conn.cursor(cursor_factory=DictCursor) as cur:
+                cur.execute(f'''
+                    INSERT INTO {self.urls_table}(url, created_at)
+                    VALUES (%s, %s)
+                    RETURNING id;
+                ''', (name, creation_date))
+                result = cur.fetchone()
+            self.conn.commit()
         return result

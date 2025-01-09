@@ -131,9 +131,10 @@ def add_url():
             flash('Некорректный URL', 'danger')
             return render_template('main/search.html'), 422
 
-        url_id = repo.get_url_by_name(url)['id']
+        url_id = repo.get_url_by_name(url)
         if url_id:
             flash('Страница уже существует', 'info')
+            url_id = url_id['id']
             return redirect(url_for('get_url', url_id=url_id))
 
         try:
