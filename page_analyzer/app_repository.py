@@ -16,28 +16,6 @@ class AppRepository:
             ''', (name,))
             return cur.fetchone()
 
-    def get_urls(self):
-        with self.conn.cursor(cursor_factory=DictCursor) as cur:
-            cur.execute(f'''
-                SELECT
-                    ul.id AS id,
-                    ul.url AS name,
-                    uc.created_at AS created_at,
-                    uc.status_code AS status_code
-                FROM {self.urls_table} AS ul
-                LEFT JOIN (
-                    SELECT id, url_id, created_at, status_code
-                    FROM {self.checks_table}
-                    WHERE id IN (
-                        SELECT MAX(id)
-                        FROM {self.checks_table}
-                        GROUP BY url_id
-                    )
-                ) AS uc ON ul.id = uc.url_id
-                ORDER BY ul.id ASC;
-            ''')
-            return cur.fetchall()
-
     def get_urls_paginated(self, page: int, per_page: int) -> tuple:
         offset = (page - 1) * per_page
         with self.conn.cursor(cursor_factory=DictCursor) as cur:
@@ -126,21 +104,14 @@ class AppRepository:
 
     def add_url(self, name: str, creation_date: str) -> dict:
         with self.conn.cursor(cursor_factory=DictCursor) as cur:
-            if not isinstance(name, str):
-                raise TypeError("URL must be a string")
-            if not isinstance(creation_date, str):
-                raise TypeError("Creation date must be a string")
-
             cur.execute(f'''
                 SELECT id
                 FROM {self.urls_table}
                 WHERE url = %s;
             ''', (name,))
-            result = cur.fetchone()
+            url_id = cur.fetchone()
 
-            if result:
-                url_id = dict(result)
-            else:
+            if not url_id:
                 cur.execute(f'''
                     INSERT INTO {self.urls_table}(url, created_at)
                     VALUES (%s, %s)

@@ -91,6 +91,29 @@ def search():
     return render_template('main/search.html', messages=messages)
 
 
+# Отображение списка URL
+@app.get('/urls')
+@with_db_connection
+def get_urls():
+    page = request.args.get('page', 1, type=int)
+    per_page = 10  # Число URL на странице
+
+    urls, total = repo.get_urls_paginated(page, per_page)
+    total_pages = (total + per_page - 1) // per_page
+
+    messages = get_flashed_messages(with_categories=True)
+
+    return render_template(
+        'main/urls.html',
+        urls=urls,
+        current_page=page,
+        total_pages=total_pages,
+        max=max,
+        min=min,
+        messages=messages,
+    )
+
+
 # Страница добавления URL
 @app.post('/urls')
 @with_db_connection
@@ -108,6 +131,11 @@ def add_url():
             flash('Страница уже существует', 'info')
             url_id = url_id['id']
             return redirect(url_for('get_url', url_id=url_id))
+
+        if not isinstance(url, str):
+            raise TypeError("URL must be a string")
+        if not isinstance(get_current_date(), str):
+            raise TypeError("Creation date must be a string")
 
         try:
             url_id = repo.add_url(url, get_current_date())['id']
@@ -162,29 +190,6 @@ def check_url(url_id: int):
     except Exception:
         flash('Произошла ошибка при проверке', 'error')
         return redirect(url_for('get_url', url_id=url_id))
-
-
-# Отображение списка URL
-@app.get('/urls')
-@with_db_connection
-def get_urls():
-    page = request.args.get('page', 1, type=int)
-    per_page = 10  # Число URL на странице
-
-    urls, total = repo.get_urls_paginated(page, per_page)
-    total_pages = (total + per_page - 1) // per_page
-
-    messages = get_flashed_messages(with_categories=True)
-
-    return render_template(
-        'main/urls.html',
-        urls=urls,
-        current_page=page,
-        total_pages=total_pages,
-        max=max,
-        min=min,
-        messages=messages,
-    )
 
 
 # Обработка HTTP ошибок
