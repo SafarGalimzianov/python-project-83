@@ -110,6 +110,5 @@ class AppRepository:
                 VALUES (%s, %s)
                 RETURNING id;
             ''', (name, creation_date))
+            self.conn.commit()
             return cur.fetchone().get('id', None)
-
-        self.conn.commit()

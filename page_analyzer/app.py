@@ -122,6 +122,11 @@ def add_url():
         url = request.form.to_dict()['url']
         url = sanitize_url_input(url)
 
+        if not isinstance(url, str):
+            raise TypeError("URL must be a string")
+        if not isinstance(get_current_date(), str):
+            raise TypeError("Creation date must be a string")
+
         if not url:
             flash('Некорректный URL', 'danger')
             return render_template('main/search.html'), 422
@@ -130,11 +135,6 @@ def add_url():
         if url_id:
             flash('Страница уже существует', 'info')
             return redirect(url_for('get_url', url_id=url_id))
-
-        if not isinstance(url, str):
-            raise TypeError("URL must be a string")
-        if not isinstance(get_current_date(), str):
-            raise TypeError("Creation date must be a string")
 
         try:
             url_id = repo.add_url(url, get_current_date())
