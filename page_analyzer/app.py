@@ -75,7 +75,7 @@ def with_db_connection(f):
         except psycopg2.Error as e:
             if conn:
                 conn.rollback()
-            flash('Database error: ' + str(e), 'error')
+            flash(f'Database error: ' + str(e), 'error')
             abort(500)
         finally:
             if conn:
@@ -127,16 +127,10 @@ def add_url():
     url_id = repo.get_url_by_name(url)
     if url_id:
         flash('Страница уже существует', 'info')
-        url_id = url_id['id']
-        return redirect(url_for('get_url', url_id=url_id))
-
-    try:
-        url_id = repo.add_url(url, get_current_date())['id']
+    else:
+        url_id = repo.add_url(url, get_current_date())
         flash('Страница успешно добавлена', 'success')
-        return redirect(url_for('get_url', url_id=url_id))
-    except Exception:
-        flash('Некорректный URL', 'danger')
-        return render_template('main/search.html'), 422
+    return redirect(url_for('get_url', url_id=url_id['id']))
 
 
 # Страница с информацией об URL по уникальному id URL
@@ -150,6 +144,7 @@ def get_url(url_id):
     messages = get_flashed_messages(with_categories=True)
     return render_template(
         'main/url_info.html',
+        # Why not pass the whole url_info dictionary?
         url_id=url_id,
         name=url_info['name'],
         created_at=url_info['created_at'],
@@ -167,18 +162,14 @@ def check_url(url_id: int):
         flash('URL не найден', 'error')
         abort(404)
 
-    try:
-        data = make_request(url['name'])
-        if not data['name']:
-            flash('Произошла ошибка при проверке', 'error')
-            return redirect(url_for('get_url', url_id=url_id))
-
-        repo.check_url(data)
-        flash('Страница успешно проверена', 'success')
-        return redirect(url_for('get_url', url_id=url_id))
-    except Exception:
+    data = make_request(url['name'])
+    if not data['name']:
         flash('Произошла ошибка при проверке', 'error')
         return redirect(url_for('get_url', url_id=url_id))
+
+    repo.check_url(data)
+    flash('Страница успешно проверена', 'success')
+    return redirect(url_for('get_url', url_id=url_id))
 
 
 # Обработка HTTP ошибок
