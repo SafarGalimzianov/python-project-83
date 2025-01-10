@@ -7,7 +7,7 @@ class AppRepository:
         self.urls_table = 'urls'
         self.checks_table = 'url_checks'
 
-    def get_url_by_name(self, name: str) -> dict:
+    def get_url_id_by_name(self, name: str) -> dict:
         with self.conn.cursor(cursor_factory=DictCursor) as cur:
             cur.execute(f'''
                 SELECT id
@@ -25,7 +25,7 @@ class AppRepository:
             cur.execute(f'''
                 SELECT
                     ul.id AS id,
-                    ul.url AS url,
+                    ul.url AS name,
                     uc.created_at AS created_at,
                     uc.status_code AS status_code
                 FROM {self.urls_table} AS ul
@@ -65,7 +65,7 @@ class AppRepository:
             ''', (url_id,))
             return cur.fetchall()
 
-    def get_url_address(self, url_id: int) -> dict:
+    def get_url_name_by_id(self, url_id: int) -> dict:
         with self.conn.cursor(cursor_factory=DictCursor) as cur:
             cur.execute(f'''
                 SELECT url AS name
@@ -75,25 +75,17 @@ class AppRepository:
             return cur.fetchone()
 
     def check_url(self, data: dict) -> None:
+        url_id = self.get_url_id_by_name(data['name'])
+        if not url_id:
+            raise ValueError('URL not found')
         with self.conn.cursor(cursor_factory=DictCursor) as cur:
-            cur.execute(f'''
-                SELECT id
-                FROM {self.urls_table}
-                WHERE url = %s;
-            ''', (data['name'],))
-
-            try:
-                url_id = cur.fetchone()['id']
-            except TypeError:
-                raise ValueError('URL not found in urls_list')
-
             cur.execute(f'''
                 INSERT INTO {self.checks_table}(
                     url_id, status_code, h1,
                     title, description, created_at
                 ) VALUES (%s, %s, %s, %s, %s, %s);
             ''', (
-                url_id,
+                url_id['id'],
                 data['status_code'],
                 data['h1'],
                 data['title'],
@@ -103,14 +95,14 @@ class AppRepository:
         self.conn.commit()
 
     def add_url(self, name: str, creation_date: str) -> dict:
-        result = self.get_url_by_name(name)
-        if not result:
+        url_id = self.get_url_id_by_name(name)
+        if not url_id:
             with self.conn.cursor(cursor_factory=DictCursor) as cur:
                 cur.execute(f'''
                     INSERT INTO {self.urls_table}(url, created_at)
                     VALUES (%s, %s)
                     RETURNING id;
                 ''', (name, creation_date))
-                result = cur.fetchone()
+                url_id = cur.fetchone()
             self.conn.commit()
-        return result
+        return url_id

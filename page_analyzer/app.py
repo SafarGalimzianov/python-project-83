@@ -75,7 +75,7 @@ def with_db_connection(f):
         except psycopg2.Error as e:
             if conn:
                 conn.rollback()
-            flash(f'Database error: ' + str(e), 'error')
+            flash('Database error: ' + str(e), 'error')
             abort(500)
         finally:
             if conn:
@@ -124,7 +124,7 @@ def add_url():
         flash('Некорректный URL', 'danger')
         return render_template('main/search.html'), 422
 
-    url_id = repo.get_url_by_name(url)
+    url_id = repo.get_url_id_by_name(url)
     if url_id:
         flash('Страница уже существует', 'info')
     else:
@@ -157,7 +157,7 @@ def get_url(url_id):
 @app.post('/urls/<int:url_id>')
 @with_db_connection
 def check_url(url_id: int):
-    url = repo.get_url_address(url_id)
+    url = repo.get_url_name_by_id(url_id)
     if not url:
         flash('URL не найден', 'error')
         abort(404)
