@@ -119,13 +119,7 @@ def get_urls():
 @with_db_connection
 def add_url():
     try:
-        url = request.form.to_dict()['url']
-        url = sanitize_url_input(url)
-
-        if not isinstance(url, str):
-            raise TypeError("URL must be a string")
-        if not isinstance(get_current_date(), str):
-            raise TypeError("Creation date must be a string")
+        url = sanitize_url_input(request.form.to_dict()['url'])
 
         if not url:
             flash('Некорректный URL', 'danger')

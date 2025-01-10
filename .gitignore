@@ -8,3 +8,4 @@ cc-test-reporter
 .flake8
 .coverage
 temp.*
+act/
