@@ -129,7 +129,6 @@ def add_url():
 
     if not url:
         flash('Некорректный URL', 'danger')
-        return render_template('main/search.html'), 422
         return redirect(url_for('search'))
 
     url_id = repo.get_url_id_by_name(url)
@@ -138,6 +137,7 @@ def add_url():
     else:
         url_id = repo.add_url(url, get_current_date())
         flash('Страница успешно добавлена', 'success')
+
     return redirect(url_for('get_url', url_id=url_id['id']))
 
 
@@ -150,6 +150,7 @@ def get_url(url_id, messages=None):
     if not url_info:
         abort(404)
     checks = repo.get_url_checks(url_id)
+
     return render_template(
         'main/url_info.html',
         url_id=url_id,
@@ -171,10 +172,10 @@ def check_url(url_id: int):
     data = make_request(url['name'])
     if not data['name']:
         flash('Произошла ошибка при проверке', 'error')
-        return redirect(url_for('get_url', url_id=url_id))
+    else:
+        repo.check_url(data)
+        flash('Страница успешно проверена', 'success')
 
-    repo.check_url(data)
-    flash('Страница успешно проверена', 'success')
     return redirect(url_for('get_url', url_id=url_id))
 
 
