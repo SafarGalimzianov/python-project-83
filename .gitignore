@@ -9,4 +9,3 @@ cc-test-reporter
 .coverage
 temp.*
 act/
-*.log
