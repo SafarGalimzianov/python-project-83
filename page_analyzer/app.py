@@ -129,7 +129,14 @@ def add_url():
 
     if not url:
         flash('Некорректный URL', 'danger')
-        return redirect(url_for('search'))
+        '''
+        Не можем использовать redirect,
+        так как при redirect status code должен быть 3**
+        а по тестам требуется 422.
+        В результате у некоторых браузеров возникает ошибка
+        и не делают автоматический redirect
+        '''
+        return render_template('main/search.html'), 422
 
     url_id = repo.get_url_id_by_name(url)
     if url_id:
