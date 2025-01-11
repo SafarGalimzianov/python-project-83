@@ -39,3 +39,6 @@ reinstall:
 
 build:
 	./build.sh
+
+wf-main:
+	sudo act -W .github/workflows/main.yml

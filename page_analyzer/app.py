@@ -63,6 +63,14 @@ app.config['DATABASE_URL'] = getenv('DATABASE_URL')
 app.config['PORT'] = getenv('PORT')
 
 
+def add_flashed_messages(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        messages = get_flashed_messages(with_categories=True)
+        return f(*args, messages=messages, **kwargs)
+    return decorated_function
+
+
 def with_db_connection(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
@@ -86,22 +94,21 @@ def with_db_connection(f):
 # Страница поиска
 @app.get('/')
 @with_db_connection
-def search():
-    messages = get_flashed_messages(with_categories=True)
+@add_flashed_messages
+def search(messages=None):
     return render_template('main/search.html', messages=messages)
 
 
 # Отображение списка URL
 @app.get('/urls')
 @with_db_connection
-def get_urls():
+@add_flashed_messages
+def get_urls(messages=None):
     page = request.args.get('page', 1, type=int)
     per_page = 10  # Число URL на странице
 
     urls, total = repo.get_urls_paginated(page, per_page)
     total_pages = (total + per_page - 1) // per_page
-
-    messages = get_flashed_messages(with_categories=True)
 
     return render_template(
         'main/urls.html',
@@ -123,6 +130,7 @@ def add_url():
     if not url:
         flash('Некорректный URL', 'danger')
         return render_template('main/search.html'), 422
+        return redirect(url_for('search'))
 
     url_id = repo.get_url_id_by_name(url)
     if url_id:
@@ -136,18 +144,16 @@ def add_url():
 # Страница с информацией об URL по уникальному id URL
 @app.get('/urls/<int:url_id>')
 @with_db_connection
-def get_url(url_id):
+@add_flashed_messages
+def get_url(url_id, messages=None):
     url_info = repo.get_url_info(url_id)
     if not url_info:
         abort(404)
     checks = repo.get_url_checks(url_id)
-    messages = get_flashed_messages(with_categories=True)
     return render_template(
         'main/url_info.html',
-        # Why not pass the whole url_info dictionary?
         url_id=url_id,
-        name=url_info['name'],
-        created_at=url_info['created_at'],
+        url_info=url_info,
         checks=checks,
         messages=messages,
     )
