@@ -1,4 +1,8 @@
-from functools import wraps  # Для декоратора
+# Для доступа к логам
+import logging
+
+# Для декоратора
+from functools import wraps
 
 # Для получения переменных окружения
 from os import getenv
@@ -15,8 +19,6 @@ from flask import (
     url_for,  # Получение пути по имени функции
 )
 
-# from urllib.parse import urlparse  # Для парсинга URL
-
 # Для загрузки переменных окружения из файла .env
 from dotenv import load_dotenv
 
@@ -26,9 +28,20 @@ from page_analyzer.app_repository import AppRepository
 # Для выполнения запроса к URL:
 # исправление неверный URL при возникновении ошибок и получение данных ответа
 from page_analyzer.service import \
-    make_request, sanitize_url_input, get_current_date
+    make_request, sanitize_url_input, get_current_date, log_execution_time
 
 from page_analyzer.db_pool import ConnectionPool
+
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.FileHandler('app.log'),
+        logging.StreamHandler(),
+    ]
+)
+
+logger = logging.getLogger(__name__)
 
 load_dotenv()  # Загрузка переменных окружения из файла .env
 
@@ -80,6 +93,7 @@ def add_flashed_messages(f):
 
 # Страница поиска
 @app.get('/')
+@log_execution_time
 @add_flashed_messages
 def search(messages=None):
     return render_template('main/search.html', messages=messages)
