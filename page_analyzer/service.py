@@ -46,17 +46,17 @@ def make_request(url: str, fix=True) -> dict:
     try:
         response = session.get(url, timeout=5)
         response.raise_for_status()
-        
+
         soup = BeautifulSoup(response.text, 'html.parser')
         h1_content = soup.h1.string if (soup.h1 and soup.h1.string) else ''
         title_content = soup.title.string \
             if (soup.title and soup.title.string) else ''
         description_content = ''
-        
+
         if soup.find('meta', attrs={'name': 'description'}):
             description_content = \
                 soup.find('meta', attrs={'name': 'description'})['content']
-            
+
         return {
             'name': url,
             'status_code': response.status_code,
@@ -228,7 +228,7 @@ def sanitize_url_input(user_input):
     parsed_url = urlparse(cleaned_url)
 
     if not parsed_url.scheme or not parsed_url.netloc or \
-        parsed_url.scheme not in ['http', 'https']:
+            parsed_url.scheme not in ['http', 'https']:
         return None
 
     normalized_url = urlunparse((

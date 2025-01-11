@@ -2,8 +2,7 @@ from functools import wraps  # Для декоратора
 
 # Для получения переменных окружения
 from os import getenv
-# Для работы с базой данных (app_repository.py)
-import psycopg2
+
 # Для создания веб-приложения
 from flask import (
     abort,  # Вызов ошибки
@@ -28,6 +27,8 @@ from page_analyzer.app_repository import AppRepository
 # исправление неверный URL при возникновении ошибок и получение данных ответа
 from page_analyzer.service import \
     make_request, sanitize_url_input, get_current_date
+
+from page_analyzer.db_pool import ConnectionPool
 
 load_dotenv()  # Загрузка переменных окружения из файла .env
 
@@ -57,12 +58,18 @@ def add_csp_header(response):
     return response
 
 
-# Получение ключа сессии и URL базы данных из переменных окружения
+# Получение ключа сессии, URL базы данных и порта  из переменных окружения
 app.config['SECRET_KEY'] = getenv('SECRET_KEY')
 app.config['DATABASE_URL'] = getenv('DATABASE_URL')
 app.config['PORT'] = getenv('PORT')
 
+# Инициализация соединения с базой данных
+pool = ConnectionPool(getenv('DATABASE_URL'))
+pool.init_pool()
+repo = AppRepository(pool)
 
+
+# Добавление flash сообщений
 def add_flashed_messages(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
@@ -71,29 +78,8 @@ def add_flashed_messages(f):
     return decorated_function
 
 
-def with_db_connection(f):
-    @wraps(f)
-    def decorated_function(*args, **kwargs):
-        conn = None
-        try:
-            conn = psycopg2.connect(getenv('DATABASE_URL'))
-            global repo
-            repo = AppRepository(conn)
-            return f(*args, **kwargs)
-        except psycopg2.Error as e:
-            if conn:
-                conn.rollback()
-            flash('Database error: ' + str(e), 'error')
-            abort(500)
-        finally:
-            if conn:
-                conn.close()
-    return decorated_function
-
-
 # Страница поиска
 @app.get('/')
-@with_db_connection
 @add_flashed_messages
 def search(messages=None):
     return render_template('main/search.html', messages=messages)
@@ -101,7 +87,6 @@ def search(messages=None):
 
 # Отображение списка URL
 @app.get('/urls')
-@with_db_connection
 @add_flashed_messages
 def get_urls(messages=None):
     page = request.args.get('page', 1, type=int)
@@ -123,7 +108,6 @@ def get_urls(messages=None):
 
 # Страница добавления URL
 @app.post('/urls')
-@with_db_connection
 def add_url():
     url = sanitize_url_input(request.form.to_dict()['url'])
 
@@ -150,7 +134,6 @@ def add_url():
 
 # Страница с информацией об URL по уникальному id URL
 @app.get('/urls/<int:url_id>')
-@with_db_connection
 @add_flashed_messages
 def get_url(url_id, messages=None):
     url_info = repo.get_url_info(url_id)
@@ -169,7 +152,6 @@ def get_url(url_id, messages=None):
 
 # Проверка URL производится на странице с информацией о сайте
 @app.post('/urls/<int:url_id>')
-@with_db_connection
 def check_url(url_id: int):
     url = repo.get_url_name_by_id(url_id)
     if not url:

@@ -22,7 +22,7 @@ tv:
 	poetry run pytest -v .
 
 l:
-	poetry run flake8 page_analyzer/app.py page_analyzer/app_repository.py
+	poetry run flake8 page_analyzer/
 
 
 install:
