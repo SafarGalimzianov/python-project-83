@@ -79,8 +79,8 @@ def log_execution_time(f):
 
         result = f(*args, **kwargs)
 
-        execution_time = time() - start_time
-        logging.info(f'Finished {f.__name__} in {execution_time}')
+        execution_time = round(1000*(time() - start_time), 2)
+        logging.info(f'Finished {f.__name__} in {execution_time}ms')
 
         return result
     return decorated_function

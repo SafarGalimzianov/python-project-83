@@ -34,7 +34,7 @@ from page_analyzer.db_pool import ConnectionPool
 
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    format='%(asctime)s -%(levelname)s - %(message)s',
     handlers=[
         logging.FileHandler('app.log'),
         logging.StreamHandler(),
@@ -101,6 +101,7 @@ def search(messages=None):
 
 # Отображение списка URL
 @app.get('/urls')
+@log_execution_time
 @add_flashed_messages
 def get_urls(messages=None):
     page = request.args.get('page', 1, type=int)
@@ -122,6 +123,7 @@ def get_urls(messages=None):
 
 # Страница добавления URL
 @app.post('/urls')
+@log_execution_time
 def add_url():
     url = sanitize_url_input(request.form.to_dict()['url'])
 
@@ -148,6 +150,7 @@ def add_url():
 
 # Страница с информацией об URL по уникальному id URL
 @app.get('/urls/<int:url_id>')
+@log_execution_time
 @add_flashed_messages
 def get_url(url_id, messages=None):
     url_info = repo.get_url_info(url_id)
@@ -166,6 +169,7 @@ def get_url(url_id, messages=None):
 
 # Проверка URL производится на странице с информацией о сайте
 @app.post('/urls/<int:url_id>')
+@log_execution_time
 def check_url(url_id: int):
     url = repo.get_url_name_by_id(url_id)
     if not url:
