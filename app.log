@@ -146,3 +146,57 @@ TIME: 2025-01-11 23:36:17,258 - NAME: werkzeug - TYPE: INFO - 127.0.0.1 - - [11/
 2025-01-11 23:48:57,835 -INFO - Finished check_url in 10034.46ms
 2025-01-11 23:48:57,837 -INFO - 127.0.0.1 - - [11/Jan/2025 23:48:57] "[32mPOST /urls/7 HTTP/1.1[0m" 302 -
 2025-01-11 23:49:00,301 -INFO - 127.0.0.1 - - [11/Jan/2025 23:49:00] "GET /urls/7 HTTP/1.1" 200 -
+2025-01-12 12:50:31,736 -INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:10000
+2025-01-12 12:50:31,737 -INFO - [33mPress CTRL+C to quit[0m
+2025-01-12 12:50:31,739 -INFO -  * Restarting with stat
+2025-01-12 12:50:34,588 -WARNING -  * Debugger is active!
+2025-01-12 12:50:34,601 -INFO -  * Debugger PIN: 902-846-740
+2025-01-12 12:50:36,093 -INFO - Starting search
+2025-01-12 12:50:36,104 -INFO - Finished search in 10.87ms
+2025-01-12 12:50:36,104 -INFO - 127.0.0.1 - - [12/Jan/2025 12:50:36] "GET / HTTP/1.1" 200 -
+2025-01-12 12:50:43,129 -INFO - Starting search
+2025-01-12 12:50:43,129 -INFO - Finished search in 0.51ms
+2025-01-12 12:50:43,129 -INFO - 127.0.0.1 - - [12/Jan/2025 12:50:43] "GET / HTTP/1.1" 200 -
+2025-01-12 12:50:44,911 -INFO - Starting search
+2025-01-12 12:50:44,911 -INFO - Finished search in 0.53ms
+2025-01-12 12:50:44,912 -INFO - 127.0.0.1 - - [12/Jan/2025 12:50:44] "GET / HTTP/1.1" 200 -
+2025-01-12 12:50:46,392 -INFO - Starting search
+2025-01-12 12:50:46,392 -INFO - Finished search in 0.33ms
+2025-01-12 12:50:46,392 -INFO - 127.0.0.1 - - [12/Jan/2025 12:50:46] "GET / HTTP/1.1" 200 -
+2025-01-12 12:50:47,860 -INFO - Starting search
+2025-01-12 12:50:47,860 -INFO - Finished search in 0.44ms
+2025-01-12 12:50:47,860 -INFO - 127.0.0.1 - - [12/Jan/2025 12:50:47] "GET / HTTP/1.1" 200 -
+2025-01-12 12:50:49,370 -INFO - Starting search
+2025-01-12 12:50:49,370 -INFO - Finished search in 0.51ms
+2025-01-12 12:50:49,370 -INFO - 127.0.0.1 - - [12/Jan/2025 12:50:49] "GET / HTTP/1.1" 200 -
+2025-01-12 12:50:53,032 -INFO - Starting add_url
+2025-01-12 12:50:59,827 -INFO - Finished add_url in 6794.7ms
+2025-01-12 12:50:59,827 -INFO - 127.0.0.1 - - [12/Jan/2025 12:50:59] "[32mPOST /urls HTTP/1.1[0m" 302 -
+2025-01-12 12:50:59,834 -INFO - Starting get_url
+2025-01-12 12:51:02,307 -INFO - Finished get_url in 2472.23ms
+2025-01-12 12:51:02,307 -INFO - 127.0.0.1 - - [12/Jan/2025 12:51:02] "GET /urls/1 HTTP/1.1" 200 -
+2025-01-12 12:51:04,735 -INFO - Starting check_url
+2025-01-12 12:51:11,681 -INFO - Finished check_url in 6946.67ms
+2025-01-12 12:51:11,683 -INFO - 127.0.0.1 - - [12/Jan/2025 12:51:11] "[32mPOST /urls/1 HTTP/1.1[0m" 302 -
+2025-01-12 12:51:11,725 -INFO - Starting get_url
+2025-01-12 12:51:14,061 -INFO - Finished get_url in 2335.56ms
+2025-01-12 12:51:14,062 -INFO - 127.0.0.1 - - [12/Jan/2025 12:51:14] "GET /urls/1 HTTP/1.1" 200 -
+2025-01-12 12:51:15,381 -INFO - Starting check_url
+2025-01-12 12:51:19,924 -INFO - Finished check_url in 4542.29ms
+2025-01-12 12:51:19,926 -INFO - 127.0.0.1 - - [12/Jan/2025 12:51:19] "[32mPOST /urls/1 HTTP/1.1[0m" 302 -
+2025-01-12 12:51:19,953 -INFO - Starting get_url
+2025-01-12 12:51:22,067 -INFO - Finished get_url in 2114.29ms
+2025-01-12 12:51:22,069 -INFO - 127.0.0.1 - - [12/Jan/2025 12:51:22] "GET /urls/1 HTTP/1.1" 200 -
+2025-01-12 12:51:23,766 -INFO - Starting get_urls
+2025-01-12 12:51:26,284 -INFO - Finished get_urls in 2518.25ms
+2025-01-12 12:51:26,285 -INFO - 127.0.0.1 - - [12/Jan/2025 12:51:26] "GET /urls HTTP/1.1" 200 -
+2025-01-12 12:51:28,575 -INFO - Starting get_url
+2025-01-12 12:51:31,152 -INFO - Finished get_url in 2576.67ms
+2025-01-12 12:51:31,153 -INFO - 127.0.0.1 - - [12/Jan/2025 12:51:31] "GET /urls/1 HTTP/1.1" 200 -
+2025-01-12 12:51:32,434 -INFO - Starting get_urls
+2025-01-12 12:51:35,020 -INFO - Finished get_urls in 2585.46ms
+2025-01-12 12:51:35,021 -INFO - 127.0.0.1 - - [12/Jan/2025 12:51:35] "GET /urls HTTP/1.1" 200 -
+2025-01-12 12:51:37,637 -INFO - Starting search
+2025-01-12 12:51:37,637 -INFO - Finished search in 0.37ms
+2025-01-12 12:51:37,638 -INFO - 127.0.0.1 - - [12/Jan/2025 12:51:37] "GET / HTTP/1.1" 200 -

@@ -13,9 +13,9 @@ CREATE TABLE IF NOT EXISTS url_checks(
     url_id INTEGER REFERENCES urls(id) NOT NULL,
     check_id INTEGER NOT NULL,
     status_code INTEGER NOT NULL,
-    h1 VARCHAR(255) NOT NULL,
-    title VARCHAR(255) NOT NULL, 
-    description TEXT NOT NULL,
+    h1 VARCHAR(255),
+    title VARCHAR(255), 
+    description TEXT,
     created_at DATE NOT NULL
 );
 
@@ -29,33 +29,40 @@ CREATE INDEX IF NOT EXISTS idx_url_checks_table_check_date
 ON url_checks(created_at);
 
 
-CREATE SEQUENCE IF NOT EXISTS check_id_seq START 1;
-
-
-CREATE OR REPLACE FUNCTION set_check_id()
+/*
+Чтобы каждая новая проверка на каждом уникальном url (то есть url_id) начиналась с 1,
+создадим последовательность для подсчета числа проверок check_id каждом url_id.
+Не используем сортировку и затем MAX по всем проверка url: с ростом числа проверок
+сортировка по url_id и MAX будут выполняться все медленнее,
+и замедлится добавление проверок в базу данных
+Это важно, так как проверки url происходят чаще, чем добавление url
+*/
+CREATE FUNCTION set_check_id()
 RETURNS TRIGGER AS $$
+DECLARE
+    seq_name TEXT;
 BEGIN
-    NEW.check_id := COALESCE(
-        (SELECT MAX(check_id) + 1
-        FROM url_checks
-        WHERE url_id = NEW.url_id),
-        1
-    );
+    -- Каждая последовательность имеет уникальное имя:
+    -- url_checks_seq_1, url_checks_seq_2 и так далее
+    seq_name := 'url_checks_seq_' || NEW.url_id;
+
+    --Создание последовательности
+    IF NOT EXISTS (
+        SELECT 1 FROM pg_sequences WHERE sequencename = seq_name
+        ) THEN
+        EXECUTE 'CREATE SEQUENCE ' || seq_name || ' START 1';
+
+    END IF;
+
+    -- Получение значения из последовательности
+    EXECUTE 'SELECT nextval(''' || seq_name || ''')' INTO NEW.check_id;
+
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
 
-
-DO $$
-BEGIN
-    IF NOT EXISTS (
-        SELECT 1 FROM pg_trigger 
-        WHERE tgname = 'before_insert_check_id'
-    ) THEN
-        CREATE TRIGGER before_insert_check_id
-        BEFORE INSERT ON url_checks
-        FOR EACH ROW
-        EXECUTE FUNCTION set_check_id();
-    END IF;
-END;
-$$;
+-- Триггер перед каждым добавлением записи (то есть перед каждой проверкой url)
+CREATE TRIGGER before_insert_check_id
+    BEFORE INSERT ON url_checks
+    FOR EACH ROW
+    EXECUTE FUNCTION set_check_id();
