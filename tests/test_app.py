@@ -35,7 +35,7 @@ def load_urls():
         data = json.load(f)
         return get_random_urls(list(data.values()))
 
-
+'''
 @pytest.fixture(scope='session', autouse=True)
 def clear_logs():
     yield
@@ -43,7 +43,7 @@ def clear_logs():
     with open(LOG_FILE, 'w') as log_file:
         log_file.truncate()
     print('Логи удалены после теста')
-
+'''
 
 def test_make_request(load_urls):
     responses = []
