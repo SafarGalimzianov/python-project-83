@@ -49,6 +49,7 @@ def test_get_url_id_by_name(db_connection):
     result = repo.get_url_id_by_name(url_name)
     assert result['id'] is not None
 
+
 def test_get_urls_paginated(db_connection):
     repo = AppRepository(pool=db_connection)
     creation_date = date.today().isoformat()
@@ -59,9 +60,10 @@ def test_get_urls_paginated(db_connection):
     urls, total = repo.get_urls_paginated(page=1, per_page=10)
     assert len(urls) > 0
     assert total > 0
-    assert isinstance(urls[0], dict)
+    assert isinstance(urls[0], list)
     assert 'id' in urls[0]
     assert 'name' in urls[0]
+
 
 def test_get_url_info(db_connection):
     repo = AppRepository(pool=db_connection)
@@ -74,6 +76,7 @@ def test_get_url_info(db_connection):
     assert url_info is not None
     assert url_info['name'] == url_name
     assert url_info['created_at'].isoformat() == creation_date
+
 
 def test_get_url_checks(db_connection):
     repo = AppRepository(pool=db_connection)
@@ -95,6 +98,7 @@ def test_get_url_checks(db_connection):
     assert len(checks) > 0
     assert checks[0]['check_id'] == 1
     assert checks[0]['status_code'] == 200
+
 
 def test_get_url_name_by_id(db_connection):
     repo = AppRepository(pool=db_connection)

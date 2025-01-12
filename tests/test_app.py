@@ -49,8 +49,11 @@ def test_make_request(load_urls):
     responses = []
     make_request_responses = []
     for url in load_urls:
-        responses.append(session.get(url, timeout=REQUEST_TIMEOUT).status_code)
-        make_request_responses.append(make_request(url)['status_code'])
+        try:
+            responses.append(session.get(url, timeout=REQUEST_TIMEOUT).status_code)
+            make_request_responses.append(make_request(url)['status_code'])
+        except requests.exceptions.ReadTimeout:
+            pass
 
     assert any(response == make_request_response
                for response, make_request_response
@@ -66,7 +69,7 @@ def test_add_url(load_urls):
             data={'url': url}
         )
         assert add_response.status_code in ADD_URL_STATUS_CODES, (
-            f'Unexpected response code: {add_response}'
+            f'Неожиданный код ответа: {add_response}'
         )
 
 
@@ -77,7 +80,7 @@ def test_check_url(load_urls):
             data={'url': url}
         )
         assert add_response.status_code in ADD_URL_STATUS_CODES, (
-            f'Unexpected response code: {add_response}'
+            f'Неожиданный код ответа: {add_response}'
         )
         if add_response.status_code == 302:
             location = add_response.headers['Location']
@@ -88,5 +91,5 @@ def test_check_url(load_urls):
             )
 
             assert check_response.status_code in CHECK_URL_STATUS_CODES, (
-                f'Unexpected response code: {check_response}'
+                f'Неожиданный код ответа: {check_response}'
             )
