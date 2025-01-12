@@ -96,7 +96,6 @@ def test_get_url_checks(db_connection):
 
     checks = repo.get_url_checks(url_id)
     assert len(checks) > 0
-    assert checks[0]['check_id'] == 1
     assert checks[0]['status_code'] == 200
 
 

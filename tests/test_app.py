@@ -78,5 +78,8 @@ def test_check_url(client, mock_urls):
                     'description': 'Test Description'
                 }
 
-                response = client.post('/urls/1')
-                assert response.status_code == 302
+                with patch(
+                    'page_analyzer.app_repository.AppRepository.check_url'
+                        ):
+                    response = client.post('/urls/1')
+                    assert response.status_code == 302
