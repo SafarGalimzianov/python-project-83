@@ -71,7 +71,7 @@ class AppRepository:
             ''', (url_id,))
             return cur.fetchone()
 
-    def check_url(self, data: dict) -> None:
+    def check_url(self, data: dict, creation_date: str) -> None:
         url_id = self.get_url_id_by_name(data['name'])
         if not url_id:
             raise ValueError('URL not found')
@@ -87,7 +87,7 @@ class AppRepository:
                 data['h1'],
                 data['title'],
                 data['description'],
-                data['created_at']
+                creation_date,
             ))
 
     def add_url(self, name: str, creation_date: str) -> dict:

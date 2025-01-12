@@ -9,3 +9,5 @@ cc-test-reporter
 .coverage
 temp.*
 act/
+Makefile
+*.log

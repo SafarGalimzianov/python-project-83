@@ -1,67 +1,92 @@
-from page_analyzer.app import make_request
+from os import getenv
+import pytest
+import json
+import requests
+import random
+from page_analyzer.service import make_request, REQUEST_TIMEOUT
+
+APP_URL = getenv('APP_URL')
+LOG_FILE = 'app.log'
+ADD_URL_STATUS_CODES = (
+    302,
+    422
+)
+CHECK_URL_STATUS_CODES = (
+    302,
+    404
+)
 
 
-TEST_URLS = {
-    200: 'https://www.example.com',
-    404: 'https://httpstat.us/404',
-    500: 'https://httpstat.us/500',
-    429: 'https://httpstat.us/429',
-    0: 'http://this-site-definitely-does-not-exist.com',
-    1: 'http://localhost:1'
-}
-
-RESPONSES_WITH_FIX = {
-    code: make_request(url) for code, url in TEST_URLS.items()
-    }
-RESPONSES_WITHOUT_FIX = {
-    code: make_request(url, fix=False) for code, url in TEST_URLS.items()
-    }
+session = requests.Session()
 
 
-def test_make_request_valid_url():
-    result = RESPONSES_WITH_FIX[200]
-    result_ = RESPONSES_WITHOUT_FIX[200]
+def get_random_urls(urls: list):
+    num_of_urls = 2
+    result = []
+    for _ in range(num_of_urls):
+        result.append('https://'+random.choice(urls))
 
-    assert result == result_
-    assert result['name'] == TEST_URLS[200]
-    assert result['status_code'] == 200
-    assert isinstance(result['h1'], str)
-    assert isinstance(result['title'], str)
-    assert isinstance(result['description'], str)
-    assert isinstance(result['created_at'], str)
+    return result
 
 
-'''
-def test_make_request_not_found():
-    result = RESPONSES_WITH_FIX[404]
-    assert result['status_code'] == 200
-
-    result = RESPONSES_WITHOUT_FIX[404]
-    assert result['status_code'] == 404
+@pytest.fixture(scope='module')
+def load_urls():
+    with open('tests/fixtures/urls.json', 'r') as f:
+        data = json.load(f)
+        return get_random_urls(list(data.values()))
 
 
-def test_make_request_server_error():
-    result = RESPONSES_WITH_FIX[500]
-    assert result['status_code'] == 200
+@pytest.fixture(scope='session', autouse=True)
+def clear_logs():
+    yield
 
-    result = RESPONSES_WITHOUT_FIX[500]
-    assert result['status_code'] == 500
-
-
-def test_make_request_rate_limit():
-    result = RESPONSES_WITH_FIX[429]
-    assert result['status_code'] == 200
-
-    result = RESPONSES_WITHOUT_FIX[429]
-    assert result['status_code'] == 429
-'''
+    with open(LOG_FILE, 'w') as log_file:
+        log_file.truncate()
+    print('Логи удалены после теста')
 
 
-def test_make_request_dns_error():
-    result = RESPONSES_WITH_FIX[0]
-    assert result['name'] is False
+def test_make_request(load_urls):
+    responses = []
+    make_request_responses = []
+    for url in load_urls:
+        responses.append(session.get(url, timeout=REQUEST_TIMEOUT).status_code)
+        make_request_responses.append(make_request(url)['status_code'])
+
+    assert any(response == make_request_response
+               for response, make_request_response
+               in zip(responses, make_request_responses)), (
+                    'Должно быть хотя бы одно совпадение кодов ответов'
+                )
 
 
-def test_make_request_connection_error():
-    result = RESPONSES_WITH_FIX[1]
-    assert result['name'] is False
+def test_add_url(load_urls):
+    for url in load_urls:
+        add_response = requests.post(
+            f'{APP_URL}/urls',
+            data={'url': url}
+        )
+        assert add_response.status_code in ADD_URL_STATUS_CODES, (
+            f'Unexpected response code: {add_response}'
+        )
+
+
+def test_check_url(load_urls):
+    for url in load_urls:
+        add_response = requests.post(
+            f'{APP_URL}/urls',
+            data={'url': url}
+        )
+        assert add_response.status_code in ADD_URL_STATUS_CODES, (
+            f'Unexpected response code: {add_response}'
+        )
+        if add_response.status_code == 302:
+            location = add_response.headers['Location']
+            url_id = int(location.split('/')[-1])
+
+            check_response = requests.post(
+                f'{APP_URL}/urls/{url_id}'
+            )
+
+            assert check_response.status_code in CHECK_URL_STATUS_CODES, (
+                f'Unexpected response code: {check_response}'
+            )

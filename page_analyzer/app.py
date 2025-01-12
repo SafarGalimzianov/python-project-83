@@ -1,6 +1,3 @@
-# Для доступа к логам
-import logging
-
 # Для декоратора
 from functools import wraps
 
@@ -19,6 +16,8 @@ from flask import (
     url_for,  # Получение пути по имени функции
 )
 
+from requests import RequestException, ConnectionError
+
 # Для загрузки переменных окружения из файла .env
 from dotenv import load_dotenv
 
@@ -27,21 +26,16 @@ from page_analyzer.app_repository import AppRepository
 
 # Для выполнения запроса к URL:
 # исправление неверный URL при возникновении ошибок и получение данных ответа
-from page_analyzer.service import \
-    make_request, sanitize_url_input, get_current_date, log_execution_time
+from page_analyzer.service import (
+    make_request,
+    sanitize_url_input,
+    get_current_date,
+    log_execution_time,
+    log_config
+)
 
 from page_analyzer.db_pool import ConnectionPool
 
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s -%(levelname)s - %(message)s',
-    handlers=[
-        logging.FileHandler('app.log'),
-        logging.StreamHandler(),
-    ]
-)
-
-logger = logging.getLogger(__name__)
 
 load_dotenv()  # Загрузка переменных окружения из файла .env
 
@@ -89,6 +83,10 @@ def add_flashed_messages(f):
         messages = get_flashed_messages(with_categories=True)
         return f(*args, messages=messages, **kwargs)
     return decorated_function
+
+
+# Настройка логера
+logger = log_config(__name__)
 
 
 # Страница поиска
@@ -176,11 +174,12 @@ def check_url(url_id: int):
         flash('URL не найден', 'error')
         abort(404)
 
-    data = make_request(url['name'])
-    if not data['name']:
-        flash('Произошла ошибка при проверке', 'error')
+    try:
+        data = make_request(url['name'])
+    except (RequestException, ConnectionError) as e:
+        flash(f'Произошла ошибка при проверке: {e}', 'error')
     else:
-        repo.check_url(data)
+        repo.check_url(data, get_current_date())
         flash('Страница успешно проверена', 'success')
 
     return redirect(url_for('get_url', url_id=url_id))

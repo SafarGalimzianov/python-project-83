@@ -1,131 +1,50 @@
-import os
-import psycopg2
-import psycopg2.errors
+from os import getenv
 import pytest
-import random
-import string
+from datetime import date
+from page_analyzer.db_pool import ConnectionPool
 from page_analyzer.app_repository import AppRepository
-
-from dotenv import load_dotenv
-
-load_dotenv()
-
-
-def generate_random_url():
-    domain = ''.join(random.choices(string.ascii_lowercase, k=10))
-    tld = random.choice(['com', 'org', 'net', 'io'])
-    return f"https://{domain}.{tld}"
 
 
 @pytest.fixture(scope='session')
-def setup_session():
-    if not os.getenv('DATABASE_URL'):
-        raise psycopg2.errors.UndefinedObject("DATABASE_URL variable not set")
-    return True
+def test_db_url():
+    return getenv('DATABASE_URL')
 
 
-@pytest.fixture(autouse=True)
-def transaction_rollback(setup_session):
-    database_url = os.getenv('DATABASE_URL')
-    conn = psycopg2.connect(database_url)
-    conn.autocommit = False
-
-    with conn.cursor() as cur:
-        cur.execute('BEGIN;')
-
-    yield conn
-
-    conn.rollback()
-    conn.close()
+@pytest.fixture(scope='session')
+def connection_pool(test_db_url):
+    pool = ConnectionPool(db_url=test_db_url)
+    pool.init_pool()
+    return pool
 
 
-@pytest.fixture
-def repository(transaction_rollback):
-    return AppRepository(transaction_rollback)
+@pytest.fixture(scope='function')
+def db_connection(connection_pool):
+    with connection_pool.get_cursor() as cur:
+        yield connection_pool
+        cur.execute("ROLLBACK;")
 
 
-'''
-def test_add_and_get_url(repository):
-    url = generate_random_url()
-    date = datetime.now().strftime('%Y-%m-%d')
+def test_add_url(db_connection):
+    repo = AppRepository(pool=db_connection)
+    creation_date = date.today().isoformat()
+    url_name = "https://test-example.com"
 
-    url_info = repository.get_urls()
-    assert not any(info['name'] == url for info in url_info)
+    result = repo.add_url(url_name, creation_date)
+    assert result['id'] is not None
 
-    url_id = repository.add_url(url, date)
-    assert url_id is not None
-
-    url_info = repository.get_url_info(url_id['id'])
-    assert url_info['name'] == url
-    assert url_info['created_at'].strftime('%Y-%m-%d') == date
-
-    modified_url = url.replace('https://', 'http://')
-    assert not \
-        any(info['name'] == modified_url for info in repository.get_urls())
+    with db_connection.get_cursor() as cur:
+        cur.execute("SELECT * FROM urls WHERE url = %s", (url_name,))
+        url = cur.fetchone()
+        assert url is not None
+        assert url['url'] == url_name
 
 
-def test_url_checks(repository):
-    url = generate_random_url()
-    date = datetime.now().strftime('%Y-%m-%d')
+def test_get_url_id_by_name(db_connection):
+    repo = AppRepository(pool=db_connection)
+    creation_date = date.today().isoformat()
+    url_name = "https://test-example.com"
 
-    url_info = repository.get_urls()
-    assert not any(info['name'] == url for info in url_info)
+    repo.add_url(url_name, creation_date)
 
-    url_id = repository.add_url(url, date)
-
-    check_data = {
-        'name': url,
-        'status_code': 200,
-        'h1': 'Test H1',
-        'title': 'Test Title',
-        'description': 'Test Description',
-        'created_at': date
-    }
-
-    repository.check_url(check_data)
-
-    checks = repository.get_url_checks(url_id['id'])
-    assert len(checks) == 1
-    assert checks[0]['status_code'] == 200
-    assert checks[0]['h1'] == 'Test H1'
-
-
-def test_edge_case_urls(repository):
-    with pytest.raises(TypeError):
-        repository.add_url(None, datetime.now().strftime('%Y-%m-%d'))
-
-    special_url = "https://example.com/!@#$%^&*()"
-    date = datetime.now().strftime('%Y-%m-%d')
-    url_id = repository.add_url(special_url, date)
-    assert url_id is not None
-    url_info = repository.get_url_info(url_id['id'])
-    assert url_info['name'] == special_url
-
-    url_id = None
-    long_domain = 'a' * 255 # Поле в БД ограничено 255 символами
-    long_url = f"https://{long_domain}.com"
-    with pytest.raises(psycopg2.errors.StringDataRightTruncation):
-        url_id = repository.add_url(long_url, date)
-    assert url_id is None
-
-    unicode_url = "https://测试.com"
-    with pytest.raises(psycopg2.errors.InFailedSqlTransaction):
-        url_id = repository.add_url(unicode_url, date)
-    assert url_id is None
-
-    invalid_url = "https://exa mple.com/path with spaces"
-    with pytest.raises(psycopg2.errors.InFailedSqlTransaction):
-        repository.add_url(invalid_url, date)
-    assert url_id is None
-
-
-def test_edge_case_dates(repository):
-    url = generate_random_url()
-
-    with pytest.raises(psycopg2.errors.InvalidDatetimeFormat):
-        repository.add_url(url, "invalid-date")
-
-    future_date = "2099-12-31"
-    with pytest.raises(psycopg2.errors.InFailedSqlTransaction):
-        repository.add_url(url, future_date)
-'''
+    result = repo.get_url_id_by_name(url_name)
+    assert result['id'] is not None
