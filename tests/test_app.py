@@ -1,95 +1,82 @@
-from os import getenv
 import pytest
-import json
-import requests
-import random
-from page_analyzer.service import make_request, REQUEST_TIMEOUT
-
-APP_URL = getenv('APP_URL')
-LOG_FILE = 'app.log'
-ADD_URL_STATUS_CODES = (
-    302,
-    422
-)
-CHECK_URL_STATUS_CODES = (
-    302,
-    404
-)
+from unittest.mock import patch
+from page_analyzer.app import app
+from page_analyzer.service import make_request
 
 
-session = requests.Session()
+@pytest.fixture
+def client():
+    app.config['TESTING'] = True
+    with app.test_client() as client:
+        yield client
 
 
-def get_random_urls(urls: list):
-    num_of_urls = 2
-    result = []
-    for _ in range(num_of_urls):
-        result.append('https://'+random.choice(urls))
-
-    return result
+@pytest.fixture
+def mock_urls():
+    return ['https://example.com', 'https://test.com']
 
 
-@pytest.fixture(scope='module')
-def load_urls():
-    with open('tests/fixtures/urls.json', 'r') as f:
-        data = json.load(f)
-        return get_random_urls(list(data.values()))
-
-'''
-@pytest.fixture(scope='session', autouse=True)
-def clear_logs():
-    yield
-
-    with open(LOG_FILE, 'w') as log_file:
-        log_file.truncate()
-    print('Логи удалены после теста')
-'''
-
-def test_make_request(load_urls):
-    responses = []
-    make_request_responses = []
-    for url in load_urls:
-        try:
-            responses.append(session.get(url, timeout=REQUEST_TIMEOUT).status_code)
-            make_request_responses.append(make_request(url)['status_code'])
-        except requests.exceptions.ReadTimeout:
-            pass
-
-    assert any(response == make_request_response
-               for response, make_request_response
-               in zip(responses, make_request_responses)), (
-                    'Должно быть хотя бы одно совпадение кодов ответов'
-                )
+@pytest.fixture
+def mock_html():
+    return '''
+        <html>
+            <head>
+                <title>Test Title</title>
+                <meta name="description" content="Test Description">
+            </head>
+            <body>
+                <h1>Test H1</h1>
+            </body>
+        </html>
+    '''
 
 
-def test_add_url(load_urls):
-    for url in load_urls:
-        add_response = requests.post(
-            f'{APP_URL}/urls',
-            data={'url': url}
-        )
-        assert add_response.status_code in ADD_URL_STATUS_CODES, (
-            f'Неожиданный код ответа: {add_response}'
-        )
+def test_make_request(mock_urls, mock_html):
+    with patch('requests.Session.get') as mock_get:
+        mock_get.return_value.status_code = 200
+        mock_get.return_value.text = mock_html
+
+        response = make_request(mock_urls[0])
+
+        assert response['status_code'] == 200
+        assert response['h1'] == 'Test H1'
+        assert response['title'] == 'Test Title'
+        assert response['description'] == 'Test Description'
 
 
-def test_check_url(load_urls):
-    for url in load_urls:
-        add_response = requests.post(
-            f'{APP_URL}/urls',
-            data={'url': url}
-        )
-        assert add_response.status_code in ADD_URL_STATUS_CODES, (
-            f'Неожиданный код ответа: {add_response}'
-        )
-        if add_response.status_code == 302:
-            location = add_response.headers['Location']
-            url_id = int(location.split('/')[-1])
+def test_add_url(client, mock_urls):
+    with patch('page_analyzer.app_repository.AppRepository.add_url')\
+            as mock_add:
+        mock_add.return_value = {'id': 1}
 
-            check_response = requests.post(
-                f'{APP_URL}/urls/{url_id}'
-            )
+        response = client.post('/urls', data={'url': mock_urls[0]})
+        assert response.status_code == 302
 
-            assert check_response.status_code in CHECK_URL_STATUS_CODES, (
-                f'Неожиданный код ответа: {check_response}'
-            )
+        response = client.post('/urls', data={'url': 'invalid-url'})
+        assert response.status_code == 422
+
+
+def test_check_url(client, mock_urls):
+    with patch(
+        'page_analyzer.app_repository.AppRepository.get_url_name_by_id'
+            )as mock_get_name:
+        mock_get_name.return_value = {'name': mock_urls[0]}
+
+        # get_url_id_by_name будет пытаться найти url в базе данных
+        # поэтому его тоже изолируем при помощи Mock
+        with patch(
+            'page_analyzer.app_repository.AppRepository.get_url_id_by_name'
+                ) as mock_get_id:
+            mock_get_id.return_value = {'id': 1}
+
+            with patch('page_analyzer.service.make_request') as mock_request:
+                mock_request.return_value = {
+                    'name': mock_urls[0],
+                    'status_code': 200,
+                    'h1': 'Test H1',
+                    'title': 'Test Title',
+                    'description': 'Test Description'
+                }
+
+                response = client.post('/urls/1')
+                assert response.status_code == 302
