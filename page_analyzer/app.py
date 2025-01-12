@@ -57,8 +57,7 @@ def add_csp_header(response):
     return response
 
 
-# Получение ключа сессии, URL базы данных и порта  из переменных окружения
-app.config['SECRET_KEY'] = getenv('SECRET_KEY')
+# Получение URL базы данных из переменных окружения
 app.config['DATABASE_URL'] = getenv('DATABASE_URL')
 
 # Инициализация соединения с базой данных
