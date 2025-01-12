@@ -1,31 +1,24 @@
-# Для декоратора
 from functools import wraps
 
-# Для получения переменных окружения
 from os import getenv
 
-# Для создания веб-приложения
 from flask import (
-    abort,  # Вызов ошибки
-    get_flashed_messages,  # Получение сообщений пользователю
-    flash,  # Отображение сообщения пользователю
-    Flask,  # Создание экземпляра веб-приложения
-    redirect,  # Редирект на другую страницу
-    render_template,  # Рендеринг шаблона
-    request,  # Получение ответа от пользователя
-    url_for,  # Получение пути по имени функции
+    abort,
+    get_flashed_messages,
+    flash,
+    Flask,
+    redirect,
+    render_template,
+    request,
+    url_for,
 )
 
 from requests import RequestException, ConnectionError
 
-# Для загрузки переменных окружения из файла .env
 from dotenv import load_dotenv
 
-# Класс AppRepository из app_repository.py для работы с базой данных
 from page_analyzer.app_repository import AppRepository
 
-# Для выполнения запроса к URL:
-# исправление неверный URL при возникновении ошибок и получение данных ответа
 from page_analyzer.service import (
     make_request,
     sanitize_url_input,
@@ -37,10 +30,9 @@ from page_analyzer.service import (
 from page_analyzer.db_pool import ConnectionPool
 
 
-load_dotenv()  # Загрузка переменных окружения из файла .env
+load_dotenv()
 
-# Инстанцирование веб-приложения с именем __name__
-# Таким образом Flask знает, где искать шаблоны и статические файлы
+# Инстанцирование веб-приложения
 app = Flask(
         __name__,
         template_folder='../templates',
@@ -68,7 +60,6 @@ def add_csp_header(response):
 # Получение ключа сессии, URL базы данных и порта  из переменных окружения
 app.config['SECRET_KEY'] = getenv('SECRET_KEY')
 app.config['DATABASE_URL'] = getenv('DATABASE_URL')
-app.config['PORT'] = getenv('PORT')
 
 # Инициализация соединения с базой данных
 pool = ConnectionPool(getenv('DATABASE_URL'))

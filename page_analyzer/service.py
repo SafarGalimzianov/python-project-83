@@ -3,15 +3,10 @@ import logging
 from time import time
 from functools import wraps
 
-# Для отправки HTTP-запросов (make_request())
 from requests import Session
-# Для парсинга HTML-кода (make_request())
 from bs4 import BeautifulSoup
-# Для работы с датой (make_request())
 from datetime import datetime
-# Для парсинга URL (validate_and_fix_url())
 from urllib.parse import urlparse, urlunparse
-# Для очистки данных HTML от вредоносных элементов (sanitize_url_input())
 from bleach import clean
 
 
