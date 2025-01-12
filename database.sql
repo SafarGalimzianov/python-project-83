@@ -1,3 +1,5 @@
+DROP FUNCTION IF EXISTS set_check_id() CASCADE;
+-- Но не надо так удалять триггеры, так как они всегда удаляются с таблицами
 DROP TABLE IF EXISTS urls CASCADE;
 DROP TABLE IF EXISTS url_checks CASCADE;
 
